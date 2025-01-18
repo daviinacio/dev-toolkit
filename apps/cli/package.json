@@ -1,0 +1,8 @@
+{
+  "name": "@dev-toolkit/cli",
+  "version": "1.0.0",
+  "private": true,
+  "repository": "https://github.com/daviinacio/dev-toolkit",
+  "author": "Davi Inácio <aazz6850@gmail.com>",
+  "license": "MIT"
+}

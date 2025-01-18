@@ -1,0 +1,19 @@
+{
+  "name": "dev-toolkit",
+  "version": "1.0.0",
+  "private": true,
+  "repository": "https://github.com/daviinacio/dev-toolkit",
+  "author": "Davi Inácio <aazz6850@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev:web": "yarn workspace @dev-toolkit/web run dev",
+    "dev": "run-p dev:* --print-label"
+  },
+  "workspaces": [
+    "apps/*",
+    "modules/*"
+  ],
+  "dependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
