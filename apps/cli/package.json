@@ -1,8 +1,29 @@
 {
-  "name": "@dev-toolkit/cli",
-  "version": "1.0.0",
-  "private": true,
+  "name": "dev-toolkit-cli",
+  "version": "1.0.1",
   "repository": "https://github.com/daviinacio/dev-toolkit",
   "author": "Davi Inácio <aazz6850@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "./bin/main.js",
+  "bin": {
+    "dtk": "./bin/main.js"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc",
+    "unlink-cli": "yarn --global unlink dev-toolkit-cli",
+    "link-cli": "(yarn unlink-cli || true) && chmod +x bin/main.js && yarn --global link",
+    "prepublish": "yarn build",
+    "publish": "npm publish"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "mime": "^4.0.6",
+    "sharp": "^0.33.5"
+  }
 }
