@@ -1,6 +1,6 @@
 {
   "name": "dev-toolkit-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": "https://github.com/daviinacio/dev-toolkit",
   "author": "Davi Inácio <aazz6850@gmail.com>",
   "license": "MIT",
@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "commander": "^13.1.0",
-    "mime": "^4.0.6",
-    "sharp": "^0.33.5"
+    "mime": "^4.0.6"
   }
 }

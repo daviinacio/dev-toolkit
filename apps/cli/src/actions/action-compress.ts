@@ -2,7 +2,6 @@ import { CommanderError } from "commander";
 import fs from "fs/promises";
 import mime from "mime";
 import path from "path";
-import sharp from "sharp";
 
 import { Resolution } from "../lib/constants.js";
 import {
@@ -15,7 +14,11 @@ import {
   removeFilenamePrefix,
   replaceFilenameExtension,
 } from "../lib/utils/index.js";
-import { check_dependencies, ffmpeg_video_compress } from "../lib/bash.js";
+import {
+  check_dependencies,
+  ffmpeg_image_to_webp,
+  ffmpeg_video_compress,
+} from "../lib/bash.js";
 
 export const FileType = ["image", "video"] as const;
 type FileType = (typeof FileType)[number];
@@ -88,9 +91,13 @@ export async function file(
 }
 
 async function compressImage(filePath: string) {
-  await sharp(filePath)
-    .webp()
-    .toFile(replaceFilenameExtension(filePath, "webp"));
+  // await sharp(filePath)
+  //   .webp()
+  //   .toFile(replaceFilenameExtension(filePath, "webp"));
+  await ffmpeg_image_to_webp(
+    filePath,
+    replaceFilenameExtension(filePath, "webp")
+  );
   await fs.rm(filePath);
 }
 

@@ -48,3 +48,7 @@ export async function ffmpeg_video_compress(
       : `ffmpeg -i "${input}" -filter:v scale=-1:${h} -acodec copy -y "${output}"`
   );
 }
+
+export async function ffmpeg_image_to_webp(input: string, output: string) {
+  return execAsync(`ffmpeg -i "${input}" -c:v libwebp "${output}"`);
+}

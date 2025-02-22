@@ -6,7 +6,8 @@
   "author": "Davi Inácio <aazz6850@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev:web": "yarn workspace @dev-toolkit/web run dev",
+    "dev:cli": "yarn workspace dev-toolkit-cli run dev",
+    "dev:web": "yarn workspace dev-toolkit-web run dev",
     "dev": "run-p dev:* --print-label"
   },
   "workspaces": [

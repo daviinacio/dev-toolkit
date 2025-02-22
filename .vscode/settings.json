@@ -8,5 +8,5 @@
     "**/Thumbs.db": true,
     "**/node_modules": true
   },
-  "cSpell.words": ["nodenext", "tanstack"]
+  "cSpell.words": ["acodec", "libwebp", "nodenext", "tanstack"]
 }
