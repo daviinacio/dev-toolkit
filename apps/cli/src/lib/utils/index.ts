@@ -56,6 +56,8 @@ export function getFilenameExtension(filename: string) {
   );
 }
 
+// export function getIgnoreList(pathname: string) {x}
+
 export function replaceFilenameExtension(
   filename: string,
   newExtension: string

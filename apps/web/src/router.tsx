@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import DocumentationLayout from "./components/layout/doc-layout";
-import { HomePage } from "./pages/Home";
+import HomePage from "./pages/Home";
 
 export function AppRouter() {
   return (

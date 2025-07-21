@@ -6,9 +6,15 @@
   "author": "Davi Inácio <aazz6850@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "clear-modules": "rm -rf node_modules && rm -rf apps/**/node_modules",
     "dev:cli": "yarn workspace dev-toolkit-cli run dev",
     "dev:web": "yarn workspace dev-toolkit-web run dev",
-    "dev": "run-p dev:* --print-label"
+    "dev": "run-p dev:* --print-label",
+    "build:cli": "yarn workspace dev-toolkit-cli run build",
+    "build:web": "yarn workspace dev-toolkit-web run build",
+    "build": "run-p build:* --print-label",
+    "deploy:web": "yarn workspace dev-toolkit-web run deploy",
+    "deploy": "run-p deploy:* --print-label"
   },
   "workspaces": [
     "apps/*",
