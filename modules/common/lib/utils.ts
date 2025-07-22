@@ -1,5 +1,8 @@
 export const sleep = (ms: number) =>
+  //@ts-ignore
   new Promise((resolve) => setTimeout(resolve, ms));
+
+export const NewLine = ` \r\n\r\n`;
 
 export function normalizeUsername(username: string) {
   return (
@@ -166,12 +169,14 @@ export function dataURLtoFile(dataUrl: string, filename: string) {
   const arr = dataUrl.split(",");
   if (!arr[0]) return;
   const mime = arr[0].match(/:(.*?);/)?.[1];
+  //@ts-ignore
   const bstr = atob(arr[arr.length - 1]);
   let n = bstr.length;
   const u8arr = new Uint8Array(n);
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n);
   }
+  //@ts-ignore
   return new File([u8arr], filename, { type: mime });
 }
 

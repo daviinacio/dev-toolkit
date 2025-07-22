@@ -1,10 +1,11 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import DocumentationLayout from "./components/layout/doc-layout";
 import { useToolboxList } from "./hooks/use-toolbox-list";
+import { Fragment } from "react/jsx-runtime";
 
 import HomePage from "./pages/Home";
 import ToolboxDetailsPage from "./pages/ToolboxDetails";
-import { Fragment } from "react/jsx-runtime";
+import CommandLinePage from "./pages/CommandLine";
 
 export function AppRouter() {
   const toolboxes = useToolboxList();
@@ -14,6 +15,7 @@ export function AppRouter() {
       <Routes>
         <Route path="/" element={<DocumentationLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="/cli" element={<CommandLinePage />} />
 
           {toolboxes.map((toolbox) => (
             <Fragment key={toolbox.path}>
