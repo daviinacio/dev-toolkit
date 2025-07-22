@@ -15,105 +15,50 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-import pkg from "../../package.json";
+import { ToolCaseIcon } from "lucide-react";
 
-// This is sample data.
-const data = {
-  navMain: [
-    {
-      title: "CLI version",
-      url: "/cli",
-      items: [
-        {
-          title: "Installation",
-          url: "/cli/#installation",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Tools",
-      url: "#",
-      items: [
-        {
-          title: "Convert png to webp",
-          url: "#",
-        },
-      ],
-    },
-    // {
-    //   title: "API Reference",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Components",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "File Conventions",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Functions",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "next.config.js Options",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "CLI",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Edge Runtime",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: "Architecture",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Accessibility",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Fast Refresh",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Next.js Compiler",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Supported Browsers",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Turbopack",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: "Community",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Contribution Guide",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-  ],
-};
+import pkg from "../../package.json";
+import { useToolboxList } from "@/hooks/use-toolbox-list";
+import { Link } from "react-router-dom";
+
+const defaultSidebar = [
+  {
+    title: "CLI version",
+    url: "/cli",
+    items: [
+      {
+        title: "Installation",
+        url: "/cli/#installation",
+      },
+      {
+        title: "Project Structure",
+        url: "#",
+      },
+    ],
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const toolboxes = useToolboxList();
+  const sidebar = React.useMemo(
+    () => [
+      ...defaultSidebar,
+      ...toolboxes.map((toolbox) => ({
+        title: toolbox.name,
+        url: `/${toolbox.path}`,
+        items: toolbox.tools.map((tool) => ({
+          title: (
+            <>
+              <ToolCaseIcon /> {tool.name}
+            </>
+          ),
+          url: `/${toolbox.path}/${tool.path}`,
+        })),
+      })),
+    ],
+    [toolboxes]
+  );
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -136,19 +81,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {data.navMain.map((item) => (
+            {sidebar.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild>
-                  <a href={item.url} className="font-medium">
+                  <Link to={item.url} className="font-medium">
                     {item.title}
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
                 {item.items?.length ? (
                   <SidebarMenuSub>
                     {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
+                      <SidebarMenuSubItem key={item.url}>
                         <SidebarMenuSubButton asChild isActive={false}>
-                          <a href={item.url}>{item.title}</a>
+                          <Link to={item.url}>{item.title}</Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
