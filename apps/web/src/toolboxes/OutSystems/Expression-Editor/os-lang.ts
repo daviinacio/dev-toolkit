@@ -1,11 +1,5 @@
 import { CustomLanguage, CustomLanguageFunction } from "@/lib/custom-lang";
-import {
-  dateTimeToString,
-  dateToString,
-  NewLine,
-  removeStringMark,
-  textOccurrences,
-} from "common/lib/utils";
+import { dateTimeToString, dateToString, NewLine } from "common/lib/utils";
 
 export type OutSystemsLangFunction = CustomLanguageFunction & {
   group: string;
