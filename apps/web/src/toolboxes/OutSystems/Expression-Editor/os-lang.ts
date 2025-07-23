@@ -1,4 +1,5 @@
 import { CustomLanguage, CustomLanguageFunction } from "@/lib/custom-lang";
+import { dateTimeToString, dateToString } from "common/lib/utils";
 
 export type OutSystemsLangFunction = CustomLanguageFunction & {
   group: string;
@@ -110,7 +111,7 @@ export const OutSystemsLang: CustomLanguage & {
       returnType: "Decimal",
       jsParser: ([n, fractionalDigits]) =>
         fractionalDigits
-          ? `Math.round(${n}).toFixed(${fractionalDigits})`
+          ? `(Math.round(${n} * Math.pow(10, ${fractionalDigits})) / Math.pow(10, ${fractionalDigits}))`
           : `Math.round(${n})`,
     },
     {
@@ -187,6 +188,67 @@ export const OutSystemsLang: CustomLanguage & {
       examples: ["Max(-10.89, -2.3) = -2.3", "Max(10.89, 2.3) = 10.89"],
       returnType: "Decimal",
       jsParser: ([n, m]) => `Math.min(${n}, ${m})`,
+    },
+    {
+      label: "CurrDate",
+      description: [
+        "In client-side calls, it returns the device date.",
+        "In server-side calls, it returns the platform server date.",
+        "In query calls, it returns the platform server date. ",
+      ].join("\r\n"),
+      group: "Date and Time",
+      parameters: [],
+      examples: [],
+      returnType: "Date",
+      jsParser: () => `"${dateToString(new Date())}"`,
+    },
+    {
+      label: "CurrDateTime",
+      description: [
+        "In client-side calls, it returns the device date and time. It also returns milliseconds.",
+        "In server-side calls, it returns the platform server date and time.",
+        "In query calls, it returns the platform server date and time.",
+
+        "Date times in the device are converted in the server to the server time zone.",
+        "Conversely, date times in the server are converted in the device to the device time zone. ",
+      ].join("\r\n"),
+      group: "Date and Time",
+      parameters: [],
+      examples: [],
+      returnType: "DateTime",
+      jsParser: () => `"${dateTimeToString(new Date())}"`,
+    },
+    {
+      label: "Second",
+      description: "Returns the seconds of 'dt'.",
+      group: "Date and Time",
+      parameters: [
+        {
+          name: "dt",
+          type: "DateTime",
+          description: "The Date Time to extract the seconds from.",
+          mandatory: true,
+        },
+      ],
+      examples: ["Second(#2015-05-21 22:20:30#) = 30"],
+      returnType: "Integer",
+      jsParser: ([dt]) => `(new Date(${dt}).getSeconds())`,
+    },
+    {
+      label: "Year",
+      description: "Returns the year of 'dt'.",
+      group: "Date and Time",
+      parameters: [
+        {
+          name: "dt",
+          type: "DateTime",
+          description: "The Date Time to extract the year from.",
+          mandatory: true,
+        },
+      ],
+      examples: ["Year(#2015-07-14#) = 2015"],
+      returnType: "Integer",
+      jsParser: ([dt]) => `(new Date(${dt}).getFullYear())`,
     },
   ],
   keywords: [

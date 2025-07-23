@@ -1,48 +1,66 @@
-import { CodeEditor } from "@/components/ui/code-editor";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { FunctionSquareIcon } from "lucide-react";
-import { OutSystemsLang, OutSystemsLangFunction } from "./os-lang";
-import { useCallback, useState } from "react";
-import { transpileCustomCodeToJavascript } from "@/lib/custom-lang";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { CodeEditor } from "@/components/ui/code-editor";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { transpileCustomCodeToJavascript } from "@/lib/custom-lang";
+import { FunctionSquareIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { OutSystemsLang, OutSystemsLangFunction } from "./os-lang";
 
 export default function OutSystemsExpression_ToolPage() {
+  const [refresh, setRefresh] = useState(false);
+
+  const [outsystemsCode, setOutsystemsCode] = useState<string>();
   const [transpiledJavascript, setTranspiledJavascript] = useState("");
   const [result, setResult] = useState("");
 
-  const handleOnCodeChanged = useCallback((snippet?: string) => {
+  useEffect(() => {
+    if (["CurrDateTime()"].every((it) => !outsystemsCode?.includes(it))) return;
+
+    const interval = setInterval(() => {
+      setRefresh((p) => !p);
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [outsystemsCode]);
+
+  useEffect(() => {
     const jsCode = transpileCustomCodeToJavascript(
       OutSystemsLang,
-      snippet || ""
+      outsystemsCode || ""
     );
     setTranspiledJavascript(jsCode);
 
     try {
-      setResult(String(eval(jsCode) || "").trim());
+      setResult(String(eval(jsCode) ?? "").trim());
     } catch (err) {
       console.debug(err);
     }
-  }, []);
+  }, [outsystemsCode, refresh]);
 
   return (
     <div className="">
-      <h1>OutSystems / Expression Editor</h1>
+      <label className="font-sm py-1 font-semibold">
+        OutSystems / Expression Editor
+      </label>
 
       <div className="h-96 flex gap-x-2">
         <div className="h-full flex-1">
           <CodeEditor
             language="outsystems"
             customLanguages={[OutSystemsLang]}
-            onChange={handleOnCodeChanged}
+            value={outsystemsCode}
+            onChange={setOutsystemsCode}
           />
         </div>
         <div className="h-full bg-slate-700 w-64 rounded-md text-white px-3 py-2">
@@ -82,26 +100,28 @@ export default function OutSystemsExpression_ToolPage() {
                               <strong>{fn.label}</strong> function : data type{" "}
                               <strong>{fn.returnType}</strong>
                             </div>
-                            <div className="whitespace-break-spaces">
+                            <div className="whitespace-break-spaces italic">
                               {fn.description}
                             </div>
-                            <div className="mt-2">
-                              Inputs:
-                              <ul>
-                                {(fn.parameters || []).map((param) => (
-                                  <li className="ml-2" key={param.name}>
-                                    <div>
-                                      <strong>{param.name}</strong>
-                                      {param.mandatory && " : mandatory"}; data
-                                      type <strong>{param.type}</strong>
-                                    </div>
-                                    <div className="ml-2">
-                                      {param.description}
-                                    </div>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
+                            {fn.parameters && fn.parameters.length > 0 && (
+                              <div className="mt-2">
+                                Inputs:
+                                <ul>
+                                  {(fn.parameters || []).map((param) => (
+                                    <li className="ml-2" key={param.name}>
+                                      <div>
+                                        <strong>{param.name}</strong>
+                                        {param.mandatory && " : mandatory"};
+                                        data type <strong>{param.type}</strong>
+                                      </div>
+                                      <div className="ml-2 italic">
+                                        {param.description}
+                                      </div>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                             {fn.examples && fn.examples.length > 0 && (
                               <div className="mt-2">
                                 Examples:
@@ -134,9 +154,9 @@ export default function OutSystemsExpression_ToolPage() {
 
       <Accordion type="single" collapsible className="mt-8">
         <AccordionItem value="item-1">
-          <AccordionTrigger>Extra for nerds</AccordionTrigger>
+          <AccordionTrigger className="py-1">Extra for nerds</AccordionTrigger>
           <AccordionContent>
-            <div className="bg-slate-400 rounded-md min-h-28 mt-2 px-3 py-2 relative">
+            <div className="bg-slate-400 rounded-md min-h-28 px-3 py-2 relative">
               <span className="absolute top-1 right-2 text-sm font-semibold">
                 Transpiled Javascript
               </span>

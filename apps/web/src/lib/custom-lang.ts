@@ -1,4 +1,4 @@
-type ParameterTypes = "String" | "Decimal" | "Integer";
+type ParameterTypes = "String" | "Decimal" | "Integer" | "Date" | "DateTime";
 
 export type CustomLanguageFunction = {
   label: string;

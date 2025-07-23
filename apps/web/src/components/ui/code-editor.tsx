@@ -3,7 +3,7 @@ import { CustomLanguage } from "@/lib/custom-lang";
 // import { usePreference } from "@/hooks/use-preference";
 // import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
-import Editor, { useMonaco } from "@monaco-editor/react";
+import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import { NewLine } from "common/lib/utils";
 import { useCallback, useEffect, useRef } from "react";
 // import Color from "color";
@@ -25,7 +25,7 @@ export function CodeEditor({
   ...props
 }: CodeEditorProps) {
   // const theme = useTheme();
-  const monaco = useMonaco();
+  const monaco = useMonaco() as Monaco;
   const editorRef = useRef(null);
   // const preferences = usePreference();
   // const currentColorPrimary = Color(
@@ -160,7 +160,7 @@ export function CodeEditor({
                           param.description || ""
                         }`
                     )
-                    .join(NewLine)}${NewLine}${
+                    .join(`\r\n`)}${NewLine}${
                     (fn.examples &&
                       fn.examples.length > 0 &&
                       `${NewLine}Examples:${NewLine}${fn.examples.join(

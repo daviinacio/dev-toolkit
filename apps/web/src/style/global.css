@@ -162,10 +162,10 @@ select:-webkit-autofill:focus {
 }
 
 
-::-moz-selection {
+/* ::-moz-selection {
   background: hsl(var(--primary) / 0.25);
 }
 
 ::selection {
   background: hsl(var(--primary) / 0.25);
-}
+} */

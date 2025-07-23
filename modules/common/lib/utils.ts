@@ -70,6 +70,14 @@ export function dateDiffInHours(date1: Date, date2: Date): number {
   return Math.floor(dateDiffInMinutes(date1, date2) / 60);
 }
 
+export function dateTimeToString(date: Date): string {
+  return date.toISOString().split("T").join(" ").split(".")[0];
+}
+
+export function dateToString(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
 export type DateFormatVariant = "short" | "long";
 
 export function formatDateTime(
