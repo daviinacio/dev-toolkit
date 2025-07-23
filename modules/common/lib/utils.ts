@@ -53,6 +53,27 @@ export function nameInitials(
   return initials.join("").substring(0, count);
 }
 
+export function removeStringMark(text: string) {
+  return text.replace(/^\"+|\"+$/g, "");
+}
+
+export function textOccurrences(text: string, search: string) {
+  return (text.match(new RegExp(search, "g")) || []).length;
+}
+
+export function encodeToHex(input: string) {
+  return input
+    .split("")
+    .map((char) => "\\x" + char.charCodeAt(0).toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export function decodeFromHex(encoded: string) {
+  return encoded.replace(/\\x([0-9a-fA-F]{2})/g, (_, hex) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
+}
+
 // Date utilities
 export function dateAddSeconds(date: Date, seconds: number): Date {
   return new Date(date.getTime() + seconds * 1000);

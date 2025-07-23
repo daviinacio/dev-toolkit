@@ -1,4 +1,10 @@
-type ParameterTypes = "String" | "Decimal" | "Integer" | "Date" | "DateTime";
+type ParameterTypes =
+  | "Text"
+  | "Decimal"
+  | "Integer"
+  | "Date"
+  | "DateTime"
+  | "Boolean";
 
 export type CustomLanguageFunction = {
   label: string;
@@ -43,4 +49,8 @@ export function transpileCustomCodeToJavascript(
   }
 
   return result;
+}
+
+export function isValidParameter(text: string): boolean {
+  return true;
 }

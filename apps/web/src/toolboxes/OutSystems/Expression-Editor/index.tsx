@@ -5,15 +5,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CodeEditor } from "@/components/ui/code-editor";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { transpileCustomCodeToJavascript } from "@/lib/custom-lang";
-import { FunctionSquareIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { OutSystemsLang, OutSystemsLangFunction } from "./os-lang";
+import { FunctionList } from "./functions-list";
+import { OutSystemsLang } from "./os-lang";
+import { dateTimeToString } from "common/lib/utils";
 
 export default function OutSystemsExpression_ToolPage() {
   const [refresh, setRefresh] = useState(false);
@@ -42,7 +38,18 @@ export default function OutSystemsExpression_ToolPage() {
     setTranspiledJavascript(jsCode);
 
     try {
-      setResult(String(eval(jsCode) ?? "").trim());
+      const result = eval(jsCode);
+
+      if (
+        typeof result === "string" ||
+        (typeof result === "number" && !Number.isNaN(result))
+      ) {
+        setResult(String(result));
+      } else if (typeof result === "object" && result instanceof Date) {
+        setResult(`#${dateTimeToString(result)}#`);
+      } else {
+        setResult("");
+      }
     } catch (err) {
       console.debug(err);
     }
@@ -63,93 +70,20 @@ export default function OutSystemsExpression_ToolPage() {
             onChange={setOutsystemsCode}
           />
         </div>
-        <div className="h-full bg-slate-700 w-64 rounded-md text-white px-3 py-2">
-          <h3 className="font-bold">Built-in functions</h3>
-
-          <div className="text-sm grid gap-y-1 mt-2">
-            {Object.entries(
-              Object.groupBy<string, OutSystemsLangFunction>(
-                OutSystemsLang.functions,
-                ({ group }) => group
-              )
-            ).map(([group, funcs]) => (
-              <div key={group}>
-                <div className="font-bold">{group}</div>
-                <ul>
-                  {funcs &&
-                    funcs.map((fn) => (
-                      <li key={fn.label}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-x-1">
-                              <FunctionSquareIcon size={18} />
-                              <div className="hover:underline cursor-pointer">
-                                {fn.label}
-                                {`(${(fn.parameters || [])
-                                  .map((param) => param.name)
-                                  .join(", ")})`}
-                              </div>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            className="max-w-[500px] grid"
-                            side="right"
-                            sideOffset={12}
-                          >
-                            <div>
-                              <strong>{fn.label}</strong> function : data type{" "}
-                              <strong>{fn.returnType}</strong>
-                            </div>
-                            <div className="whitespace-break-spaces italic">
-                              {fn.description}
-                            </div>
-                            {fn.parameters && fn.parameters.length > 0 && (
-                              <div className="mt-2">
-                                Inputs:
-                                <ul>
-                                  {(fn.parameters || []).map((param) => (
-                                    <li className="ml-2" key={param.name}>
-                                      <div>
-                                        <strong>{param.name}</strong>
-                                        {param.mandatory && " : mandatory"};
-                                        data type <strong>{param.type}</strong>
-                                      </div>
-                                      <div className="ml-2 italic">
-                                        {param.description}
-                                      </div>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            {fn.examples && fn.examples.length > 0 && (
-                              <div className="mt-2">
-                                Examples:
-                                {fn.examples.map((ex, i) => (
-                                  <div key={i}>{ex}</div>
-                                ))}
-                              </div>
-                            )}
-                          </TooltipContent>
-                        </Tooltip>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
+        <FunctionList />
       </div>
       <div className="bg-slate-400 rounded-md h-28 mt-2 px-3 py-2 relative">
-        <span className="absolute top-1 right-2 text-sm font-semibold">
+        <span className="absolute top-0 right-0 px-2 py-1 text-sm font-semibold bg-inherit">
           Final result
         </span>
-        {result}
-        {result === "" && (
-          <p className="text-slate-200">
-            Type something in the code editor above.
-          </p>
-        )}
+        <pre>
+          {result}
+          {result === "" && (
+            <p className="text-slate-200">
+              Type something in the code editor above.
+            </p>
+          )}
+        </pre>
       </div>
 
       <Accordion type="single" collapsible className="mt-8">
@@ -157,7 +91,7 @@ export default function OutSystemsExpression_ToolPage() {
           <AccordionTrigger className="py-1">Extra for nerds</AccordionTrigger>
           <AccordionContent>
             <div className="bg-slate-400 rounded-md min-h-28 px-3 py-2 relative">
-              <span className="absolute top-1 right-2 text-sm font-semibold">
+              <span className="absolute top-0 right-0 px-2 py-1 text-sm font-semibold bg-inherit">
                 Transpiled Javascript
               </span>
               <pre>
