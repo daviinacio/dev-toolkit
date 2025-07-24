@@ -47,11 +47,14 @@ export default function OutSystemsExpression_ToolPage() {
         setResult(String(result));
       } else if (typeof result === "object" && result instanceof Date) {
         setResult(`#${dateTimeToString(result)}#`);
+      } else if (typeof result === "boolean") {
+        setResult(result ? "True" : "False");
       } else {
         setResult("");
       }
     } catch (err) {
       console.debug(err);
+      setResult("");
     }
   }, [outsystemsCode, refresh]);
 
@@ -76,7 +79,7 @@ export default function OutSystemsExpression_ToolPage() {
         <span className="absolute top-0 right-0 px-2 py-1 text-sm font-semibold bg-inherit">
           Final result
         </span>
-        <pre>
+        <pre className="whitespace-pre-wrap">
           {result}
           {result === "" && (
             <p className="text-slate-200">

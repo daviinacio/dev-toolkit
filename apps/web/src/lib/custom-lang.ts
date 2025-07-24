@@ -4,11 +4,22 @@ type ParameterTypes =
   | "Integer"
   | "Date"
   | "DateTime"
-  | "Boolean";
+  | "Boolean"
+  | "GenericType";
+
+const defaultValue: Record<ParameterTypes, string> = {
+  Text: '""',
+  Decimal: "0",
+  Integer: "0",
+  Date: "#1900-01-01#",
+  DateTime: "#1900-01-01 00:00:00#",
+  Boolean: "False",
+  GenericType: "",
+};
 
 export type CustomLanguageFunction = {
   label: string;
-  description?: string;
+  description?: string | Array<string>;
   parameters?: Array<{
     name: string;
     type: ParameterTypes;
@@ -39,7 +50,13 @@ export function transpileCustomCodeToJavascript(
   lang: CustomLanguage,
   snippet: string
 ): string {
-  return replaceFunctionsRecursive(snippet, lang.functions || []);
+  let js = replaceFunctionsRecursive(snippet, lang.functions || []);
+
+  if (["DateTime", "Date"].some((it) => snippet.includes(it))) {
+    js = `Date.prototype.toString = function() {return '#' + this.toISOString().split("T").join(" ").split(".")[0] + '#';};\r\n${js}`;
+  }
+
+  return js;
 }
 
 // Transpile generated with ChatGPT
@@ -70,7 +87,13 @@ function replaceFunctionsRecursive(
           // Parse the parameters recursively
           const { args, end } = extractArgs(expr, i);
           const parsedArgs = args.map(parseExpression);
-          result += func.jsParser(parsedArgs);
+          result += func.jsParser(
+            (func.parameters || []).map(
+              (param, i) =>
+                parsedArgs[i] ||
+                (param.mandatory ? defaultValue[param.type] : "")
+            )
+          );
           i = end + 1; // skip past ')'
         } else {
           result += funcName;

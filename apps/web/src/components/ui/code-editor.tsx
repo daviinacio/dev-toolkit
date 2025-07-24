@@ -108,7 +108,15 @@ export function CodeEditor({
         monaco.languages.setMonarchTokensProvider(lang.id, {
           tokenizer: {
             root: [
-              [new RegExp("\\bIf\\b|\\bThen\\b|\\bElse\\b"), "keyword"],
+              // "\\bIf\\b|\\bThen\\b|\\bElse\\b"
+              [
+                new RegExp(
+                  [...(lang.functions || []), ...(lang.keywords || [])]
+                    .map((it) => `\\b${it.label}\\b`)
+                    .join("|")
+                ),
+                "keyword",
+              ],
               [/\bTrue\b|\bFalse\b/, "constant"],
               [/\b\w+(?=\()/, "function"], // e.g. IsNull()
               [/[a-zA-Z_]\w*/, "identifier"],
@@ -144,31 +152,45 @@ export function CodeEditor({
                   .join(", ")})`,
                 insertTextRules:
                   monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                documentation: {
-                  expand: true,
-                  kind: "markdown",
-                  value: `**${fn.label}** function : data type **${
-                    fn.returnType
-                  }**${NewLine}${fn.description || ""}${
-                    NewLine + NewLine
-                  }Inputs:${NewLine}${(fn.parameters || [])
-                    .map(
-                      (param) =>
-                        `**${param.name}**${
-                          param.mandatory ? ":mandatory" : ""
-                        }; data type: **${param.type}**${NewLine}${
-                          param.description || ""
-                        }`
-                    )
-                    .join(`\r\n`)}${NewLine}${
-                    (fn.examples &&
-                      fn.examples.length > 0 &&
-                      `${NewLine}Examples:${NewLine}${fn.examples.join(
-                        "\r\n"
-                      )}`) ||
-                    ""
-                  }`,
-                },
+                ...(fn.description && {
+                  documentation: {
+                    expand: true,
+                    kind: "markdown",
+                    value: `**${fn.label}** function : data type **${
+                      fn.returnType
+                    }**${NewLine}${
+                      (typeof fn.description === "string"
+                        ? [fn.description]
+                        : fn.description
+                      )
+                        .map((d) => `*${d.trim()}*`)
+                        .join(NewLine) || ""
+                    }${NewLine + NewLine}${
+                      (fn.parameters &&
+                        fn.parameters.length > 0 &&
+                        ` Inputs:${NewLine}${(fn.parameters || [])
+                          .map(
+                            (param) =>
+                              `  **${param.name}**${
+                                param.mandatory ? " : mandatory" : ""
+                              }; data type: **${param.type}**${
+                                (param.description &&
+                                  `${NewLine}    *${param.description}*`) ||
+                                ""
+                              }`
+                          )
+                          .join(NewLine)}`) ||
+                      ""
+                    }${NewLine}${
+                      (fn.examples &&
+                        fn.examples.length > 0 &&
+                        `${NewLine}Examples:${NewLine}${fn.examples.join(
+                          NewLine
+                        )}`) ||
+                      ""
+                    }`,
+                  },
+                }),
               })),
               ...(lang.keywords || []).map((keyword) => ({
                 label: keyword.label,

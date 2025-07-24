@@ -17,6 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { ScrollArea } from "../ui/scroll-area";
 
 type DocumentationLayoutProps = {
   className?: string;
@@ -51,7 +52,11 @@ export default function DocumentationLayout({
               </Breadcrumb>
             </div>
           </header>
-          <div className="relative p-4 flex-1 h-full">{children}</div>
+          <div className="relative pr-0.5 flex-1 h-full">
+            <ScrollArea fit>
+              <div className="p-4 pr-3.5">{children}</div>
+            </ScrollArea>
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </RootLayout>

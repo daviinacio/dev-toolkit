@@ -9,19 +9,20 @@ import { FunctionSquareIcon } from "lucide-react";
 
 export function FunctionList() {
   return (
-    <div className="flex flex-col h-full bg-slate-700 w-64 rounded-md text-white px-3 py-2">
+    <div className="flex flex-col h-full bg-slate-700 w-64 rounded-md text-white pl-3 pr-0.5 py-2">
       <h3 className="font-bold">Built-in functions</h3>
 
       <div className="flex-1">
         <ScrollArea fit>
-          <div>
-            <div className="text-sm grid gap-y-1 mt-2">
-              {Object.entries(
-                Object.groupBy<string, OutSystemsLangFunction>(
-                  OutSystemsLang.functions,
-                  ({ group }) => group
-                )
-              ).map(([group, funcs]) => (
+          <div className="text-sm grid gap-y-1 mt-2">
+            {Object.entries(
+              Object.groupBy<string, OutSystemsLangFunction>(
+                OutSystemsLang.functions,
+                ({ group }) => group || ""
+              )
+            )
+              .filter(([group]) => group !== "")
+              .map(([group, funcs]) => (
                 <div key={group}>
                   <div className="font-bold">{group}</div>
                   <ul>
@@ -87,7 +88,6 @@ export function FunctionList() {
                   </ul>
                 </div>
               ))}
-            </div>
           </div>
         </ScrollArea>
       </div>
