@@ -3,6 +3,7 @@ export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 export const NewLine = ` \r\n\r\n`;
+export const Tabulation = "  ";
 
 export function normalizeUsername(username: string) {
   return (
@@ -51,6 +52,12 @@ export function nameInitials(
   }
 
   return initials.join("").substring(0, count);
+}
+
+export function spacedCapitalize(text: string) {
+  return text
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // lowercase followed by uppercase
+    .replace(/([A-Z])([A-Z][a-z])/g, "$1 $2"); // capital acronym followed by capital+lowercase
 }
 
 export function removeStringMark(text: string) {

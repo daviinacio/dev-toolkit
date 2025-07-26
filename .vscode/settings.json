@@ -8,5 +8,13 @@
     "**/CVS": true,
     "**/node_modules": true
   },
-  "cSpell.words": ["acodec", "libwebp", "nodenext", "outsystems", "tanstack"]
+  "cSpell.words": [
+    "acodec",
+    "libwebp",
+    "nodenext",
+    "outsystems",
+    "tanstack",
+    "Uncategorized",
+    "xpto"
+  ]
 }

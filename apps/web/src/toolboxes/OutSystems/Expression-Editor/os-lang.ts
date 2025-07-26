@@ -646,30 +646,48 @@ const FormatFunctions: OutSystemsLangFunction[] = [
     ],
     examples: [],
     returnType: "Date",
-    jsParser: ([value, format]) => `((dt, f) => {
-      function convert_24h_12h(hours) {
+    jsParser: ([value, format]) => {
+      const convert_24h_12h = `function convert_24h_12h(hours) {
         return hours == 0 ? 12 : ((hours -1) % 12) + 1;
+      }`;
+
+      const replaces = {
+        yyyy: ".replaceAll('yyyy', String(dt.getFullYear()))",
+        yy: ".replaceAll('yy', String(dt.getFullYear().toString().slice(-2)))",
+        y: ".replaceAll('y', String(parseInt(dt.getFullYear().toString().slice(-2))))",
+        MMMM: ".replaceAll('MMMM', String(dt.toLocaleDateString(navigator.language, { month: 'long' })))",
+        MMM: ".replaceAll('MMM', String(dt.toLocaleDateString(navigator.language, { month: 'short' })))",
+        MM: ".replaceAll('MM', String(dt.getMonth() + 1).padStart(2, '0'))",
+        M: ".replaceAll('M', String(dt.getMonth() + 1))",
+        dd: ".replaceAll('dd', String(dt.getDate()).padStart(2, '0'))",
+        d: ".replaceAll('d', String(dt.getDate()))",
+        HH: ".replaceAll('HH', String(dt.getHours()).padStart(2, '0'))",
+        H: ".replaceAll('H', String(dt.getHours()))",
+        hh: ".replaceAll('hh', String(convert_24h_12h(dt.getHours())).padStart(2, '0'))",
+        h: ".replaceAll('h', String(convert_24h_12h(dt.getHours())))",
+        mm: ".replaceAll('mm', String(dt.getMinutes()).padStart(2, '0'))",
+        m: ".replaceAll('m', String(dt.getMinutes()))",
+        ss: ".replaceAll('ss', String(dt.getSeconds()).padStart(2, '0'))",
+        tt: ".replaceAll('tt', dt.getHours() >= 12 ? 'PM' : 'AM')",
+        t: ".replaceAll('t', dt.getHours() >= 12 ? 'P' : 'A')",
+      };
+
+      return `((dt, f) => {${
+        ["hh", "h"].some((it) => format.includes(it))
+          ? `\r\n      ${convert_24h_12h}`
+          : ""
       }
       return (f)
-        .replaceAll('yyyy', String(dt.getFullYear()))
-        .replaceAll('yy', String(dt.getFullYear().toString().slice(-2)))
-        .replaceAll('y', String(parseInt(dt.getFullYear().toString().slice(-2))))
-        .replaceAll('MMMM', String(dt.toLocaleDateString(navigator.language, { month: "long" })))
-        .replaceAll('MMM', String(dt.toLocaleDateString(navigator.language, { month: "short" })))
-        .replaceAll('MM', String(dt.getMonth() + 1).padStart(2, '0'))
-        .replaceAll('M', String(dt.getMonth() + 1))
-        .replaceAll('dd', String(dt.getDate()).padStart(2, '0'))
-        .replaceAll('d', String(dt.getDate()))
-        .replaceAll('HH', String(dt.getHours()).padStart(2, '0'))
-        .replaceAll('H', String(dt.getHours()))
-        .replaceAll('hh', String(convert_24h_12h(dt.getHours())).padStart(2, '0'))
-        .replaceAll('h', String(convert_24h_12h(dt.getHours())))
-        .replaceAll('mm', String(dt.getMinutes()).padStart(2, '0'))
-        .replaceAll('m', String(dt.getMinutes()))
-        .replaceAll('ss', String(dt.getSeconds()).padStart(2, '0'))
-        .replaceAll('tt', dt.getHours() >= 12 ? "PM" : "AM")
-        .replaceAll('t', dt.getHours() >= 12 ? "P" : "A")
-    })(${value}, ${format})`,
+        ${Object.entries(replaces)
+          // .filter(([key]) => format.includes(key))
+          // .map(([_, r]) => r)
+          .reduce((acc, [key, value]) => {
+            if (format.includes(key)) acc.push(value);
+            return acc;
+          }, [] as Array<string>)
+          .join("\r\n        ")}
+    })(${value}, ${format})`;
+    },
   },
 ];
 

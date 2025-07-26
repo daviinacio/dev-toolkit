@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { FunctionSquareIcon } from "lucide-react";
+import { spacedCapitalize } from "common/lib/utils";
 
 export function FunctionList() {
   return (
@@ -48,7 +49,9 @@ export function FunctionList() {
                             >
                               <div>
                                 <strong>{fn.label}</strong> function : data type{" "}
-                                <strong>{fn.returnType}</strong>
+                                <strong>
+                                  {spacedCapitalize(fn.returnType)}
+                                </strong>
                               </div>
                               <div className="whitespace-break-spaces italic">
                                 {fn.description}
@@ -63,7 +66,9 @@ export function FunctionList() {
                                           <strong>{param.name}</strong>
                                           {param.mandatory && " : mandatory"};
                                           data type{" "}
-                                          <strong>{param.type}</strong>
+                                          <strong>
+                                            {spacedCapitalize(param.type)}
+                                          </strong>
                                         </div>
                                         <div className="ml-2 italic">
                                           {param.description}

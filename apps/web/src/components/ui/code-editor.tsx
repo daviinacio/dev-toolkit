@@ -4,7 +4,7 @@ import { CustomLanguage } from "@/lib/custom-lang";
 // import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
-import { NewLine } from "common/lib/utils";
+import { NewLine, spacedCapitalize, Tabulation } from "common/lib/utils";
 import { useCallback, useEffect, useRef } from "react";
 // import Color from "color";
 
@@ -156,9 +156,11 @@ export function CodeEditor({
                   documentation: {
                     expand: true,
                     kind: "markdown",
-                    value: `**${fn.label}** function : data type **${
+                    value: `**${
+                      fn.label
+                    }** function : data type **${spacedCapitalize(
                       fn.returnType
-                    }**${NewLine}${
+                    )}**${NewLine}${
                       (typeof fn.description === "string"
                         ? [fn.description]
                         : fn.description
@@ -171,11 +173,15 @@ export function CodeEditor({
                         ` Inputs:${NewLine}${(fn.parameters || [])
                           .map(
                             (param) =>
-                              `  **${param.name}**${
+                              `${Tabulation}**${param.name}**${
                                 param.mandatory ? " : mandatory" : ""
-                              }; data type: **${param.type}**${
+                              }; data type: **${spacedCapitalize(
+                                param.type
+                              )}**${
                                 (param.description &&
-                                  `${NewLine}    *${param.description}*`) ||
+                                  `${NewLine}${Tabulation + Tabulation}*${
+                                    param.description
+                                  }*`) ||
                                 ""
                               }`
                           )
