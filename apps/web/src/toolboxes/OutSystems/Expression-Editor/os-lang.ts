@@ -590,7 +590,116 @@ const DateAndTimeFunctions: OutSystemsLangFunction[] = [
   },
 ];
 
-const DataConversionFunctions: OutSystemsLangFunction[] = [];
+const DataConversionFunctions: OutSystemsLangFunction[] = [
+  {
+    label: "TextToDecimal",
+    description: [
+      'Converts Text \'t\' to a Decimal value. The only allowed decimal separator is ""."" (period).',
+      "If 't' is outside the boundaries of Decimal values, the function returns the Decimal default value. However, if you use TextToDecimal in an Aggregate and 't' is outside the boundaries of Decimal values, the function throws an exception. To check if the conversion is possible, use the TextToDecimalValidate function.",
+    ],
+    group: "Data Conversion",
+    parameters: [
+      {
+        name: "t",
+        type: "Text",
+        description: "The value to be converted",
+        mandatory: true,
+      },
+    ],
+    examples: [
+      'TextToDecimal("200") = 200',
+      'TextToDecimal("-200") = -200',
+      'TextToDecimal("200.482") = 200.482',
+      'TextToDecimal("-200.482") = -200.482',
+      'TextToDecimal("0.99999999") = 0.99999999',
+      'TextToDecimal("abc") = 0',
+    ],
+    returnType: "Decimal",
+    jsParser: ([t]) => `((t) => { 
+      const tt = t.replace(/[^\\d.-]/g, "");
+      return (t !== tt || t === '') ? 0 : parseFloat(t);
+    })(${t})`,
+  },
+  {
+    label: "TextToDecimalValidate",
+    description:
+      "Returns true if Text 't' can be converted to a Decimal value.",
+    group: "Data Conversion",
+    parameters: [
+      {
+        name: "t",
+        type: "Text",
+        description: "The value to be converted",
+        mandatory: true,
+      },
+    ],
+    examples: [
+      'TextToDecimal("200") = True',
+      'TextToDecimal("-200") = True',
+      'TextToDecimal("200.482") = True',
+      'TextToDecimal("-200.482") = True',
+      'TextToDecimal("0.99999999") = True',
+      'TextToDecimal("abc") = False',
+    ],
+    returnType: "Decimal",
+    jsParser: ([t]) => `((t) => { 
+      const tt = t.replace(/[^\\d.-]/g, "");
+      return (t !== tt || t === '') ? false : parseFloat(t) !== NaN;
+    })(${t})`,
+  },
+  {
+    label: "TextToInteger",
+    description: [
+      "Converts Text 't' to an Integer value.",
+      "If 't' is outside the boundaries of Integer values, the function returns the Integer default value. However, if you use TextToInteger in an Aggregate and 't' is outside the boundaries of Integer values, the function throws an exception. To check if the conversion is possible, use the TextToIntegerValidate function.",
+    ],
+    group: "Data Conversion",
+    parameters: [
+      {
+        name: "t",
+        type: "Text",
+        description: "The value to be converted",
+        mandatory: true,
+      },
+    ],
+    examples: [
+      'TextToInteger("200") = 200',
+      'TextToInteger("-200") = -200',
+      'TextToInteger("200.482") = 0',
+      'TextToInteger("not a number") = 0',
+    ],
+    returnType: "Integer",
+    jsParser: ([t]) => `((t) => { 
+      const tt = t.replace(/[^\\d-]/g, "");
+      return (t !== tt || t === '') ? 0 : parseInt(t);
+    })(${t})`,
+  },
+  {
+    label: "TextToIntegerValidate",
+    description:
+      "Returns true if Text 't' can be converted to an Integer value.",
+    group: "Data Conversion",
+    parameters: [
+      {
+        name: "t",
+        type: "Text",
+        description: "The value to be converted",
+        mandatory: true,
+      },
+    ],
+    examples: [
+      'TextToIntegerValidate("200") = True',
+      'TextToIntegerValidate("-200") = True',
+      'TextToIntegerValidate("200.482") = False',
+      'TextToIntegerValidate("not a number") = False',
+    ],
+    returnType: "Integer",
+    jsParser: ([t]) => `((t) => { 
+      const tt = t.replace(/[^\\d-]/g, "");
+      return (t !== tt || t === '') ? false : parseInt(t) !== NaN;
+    })(${t})`,
+  },
+];
 
 const FormatFunctions: OutSystemsLangFunction[] = [
   {
