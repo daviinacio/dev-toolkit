@@ -16,7 +16,7 @@ export default function OutSystemsExpression_ToolPage() {
 
   const [outsystemsCode, setOutsystemsCode] = useState<string>();
   const [transpiledJavascript, setTranspiledJavascript] = useState("");
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState<string>();
 
   useEffect(() => {
     if (["CurrDateTime()"].every((it) => !outsystemsCode?.includes(it))) return;
@@ -38,7 +38,10 @@ export default function OutSystemsExpression_ToolPage() {
     setTranspiledJavascript(jsCode);
 
     try {
-      const result = eval(jsCode);
+      const result = new Function(`
+        const window = undefined;
+        ${jsCode}
+      `)();
 
       if (
         typeof result === "string" ||
@@ -50,11 +53,11 @@ export default function OutSystemsExpression_ToolPage() {
       } else if (typeof result === "boolean") {
         setResult(result ? "True" : "False");
       } else {
-        setResult("");
+        setResult(undefined);
       }
     } catch (err) {
       console.debug(err);
-      setResult("");
+      setResult(undefined);
     }
   }, [outsystemsCode, refresh]);
 
@@ -80,8 +83,8 @@ export default function OutSystemsExpression_ToolPage() {
           Final result
         </span>
         <pre className="whitespace-pre-wrap">
-          {result}
-          {result === "" && (
+          {/* {result || ""} */}
+          {result ?? (
             <p className="text-slate-200">
               Type something in the code editor above.
             </p>

@@ -652,24 +652,25 @@ const FormatFunctions: OutSystemsLangFunction[] = [
       }`;
 
       const replaces = {
-        yyyy: ".replaceAll('yyyy', String(dt.getFullYear()))",
-        yy: ".replaceAll('yy', String(dt.getFullYear().toString().slice(-2)))",
-        y: ".replaceAll('y', String(parseInt(dt.getFullYear().toString().slice(-2))))",
-        MMMM: ".replaceAll('MMMM', String(dt.toLocaleDateString(navigator.language, { month: 'long' })))",
-        MMM: ".replaceAll('MMM', String(dt.toLocaleDateString(navigator.language, { month: 'short' })))",
-        MM: ".replaceAll('MM', String(dt.getMonth() + 1).padStart(2, '0'))",
-        M: ".replaceAll('M', String(dt.getMonth() + 1))",
-        dd: ".replaceAll('dd', String(dt.getDate()).padStart(2, '0'))",
-        d: ".replaceAll('d', String(dt.getDate()))",
-        HH: ".replaceAll('HH', String(dt.getHours()).padStart(2, '0'))",
-        H: ".replaceAll('H', String(dt.getHours()))",
-        hh: ".replaceAll('hh', String(convert_24h_12h(dt.getHours())).padStart(2, '0'))",
-        h: ".replaceAll('h', String(convert_24h_12h(dt.getHours())))",
-        mm: ".replaceAll('mm', String(dt.getMinutes()).padStart(2, '0'))",
-        m: ".replaceAll('m', String(dt.getMinutes()))",
-        ss: ".replaceAll('ss', String(dt.getSeconds()).padStart(2, '0'))",
-        tt: ".replaceAll('tt', dt.getHours() >= 12 ? 'PM' : 'AM')",
-        t: ".replaceAll('t', dt.getHours() >= 12 ? 'P' : 'A')",
+        yyyy: "String(dt.getFullYear())",
+        yy: "String(dt.getFullYear().toString().slice(-2))",
+        y: "String(parseInt(dt.getFullYear().toString().slice(-2)))",
+        MMMM: "String(dt.toLocaleDateString(navigator.language, { month: 'long' }))",
+        MMM: "String(dt.toLocaleDateString(navigator.language, { month: 'short' }))",
+        MM: "String(dt.getMonth() + 1).padStart(2, '0')",
+        M: "String(dt.getMonth() + 1)",
+        dd: "String(dt.getDate()).padStart(2, '0')",
+        d: "String(dt.getDate())",
+        HH: "String(dt.getHours()).padStart(2, '0')",
+        H: "String(dt.getHours())",
+        hh: "String(convert_24h_12h(dt.getHours())).padStart(2, '0')",
+        h: "String(convert_24h_12h(dt.getHours()))",
+        mm: "String(dt.getMinutes()).padStart(2, '0')",
+        m: "String(dt.getMinutes())",
+        ss: "String(dt.getSeconds()).padStart(2, '0')",
+        s: "String(dt.getSeconds())",
+        tt: "dt.getHours() >= 12 ? 'PM' : 'AM'",
+        t: "dt.getHours() >= 12 ? 'P' : 'A'",
       };
 
       return `((dt, f) => {${
@@ -681,12 +682,17 @@ const FormatFunctions: OutSystemsLangFunction[] = [
         ${Object.entries(replaces)
           // .filter(([key]) => format.includes(key))
           // .map(([_, r]) => r)
-          .reduce((acc, [key, value]) => {
-            if (format.includes(key)) acc.push(value);
+          .reduce((acc, [key, replacer]) => {
+            if (format.includes(key))
+              acc.push(`.replaceAll(/(?<!\\\\)${key}/g, ${replacer})`);
+
+            if (format.includes(`\\${key}`))
+              acc.push(`.replaceAll('\\\\${key}', '${key}')`);
+
             return acc;
           }, [] as Array<string>)
           .join("\r\n        ")}
-    })(${value}, ${format})`;
+    })(${value}, ${format.replaceAll("\\", "\\\\")})`;
     },
   },
 ];

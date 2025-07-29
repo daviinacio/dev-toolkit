@@ -50,7 +50,10 @@ export function transpileCustomCodeToJavascript(
   lang: CustomLanguage,
   snippet: string
 ): string {
-  let js = replaceFunctionsRecursive(snippet, lang.functions || []);
+  let js = `return (${replaceFunctionsRecursive(
+    snippet,
+    lang.functions || []
+  )})`;
 
   if (["DateTime", "Date"].some((it) => snippet.includes(it))) {
     js = `Date.prototype.toString = function() {return '#' + this.toISOString().split("T").join(" ").split(".")[0] + '#';};\r\n${js}`;
