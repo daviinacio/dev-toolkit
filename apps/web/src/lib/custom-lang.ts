@@ -5,7 +5,8 @@ type ParameterTypes =
   | "Date"
   | "DateTime"
   | "Boolean"
-  | "GenericType";
+  | "GenericType"
+  | "Currency";
 
 const defaultValue: Record<ParameterTypes, string> = {
   Text: '""',
@@ -15,6 +16,7 @@ const defaultValue: Record<ParameterTypes, string> = {
   DateTime: "#1900-01-01 00:00:00#",
   Boolean: "False",
   GenericType: "",
+  Currency: "0",
 };
 
 export type CustomLanguageFunction = {
@@ -25,6 +27,7 @@ export type CustomLanguageFunction = {
     type: ParameterTypes;
     description?: string;
     mandatory?: boolean;
+    defaultValue?: string;
   }>;
   jsParser: (params: Array<string>) => string;
   returnType: ParameterTypes;
@@ -72,8 +75,8 @@ function replaceFunctionsRecursive(
   // Map by function name for quick lookup
   const funcMap = new Map(functions.map((f) => [f.label.toLowerCase(), f]));
 
-  // Parser loop
-  function parseExpression(expr: string) {
+  // Main entry: walks the expression and replaces any known function calls
+  function parseExpression(expr: string): string {
     let result = "";
     let i = 0;
 
@@ -82,26 +85,29 @@ function replaceFunctionsRecursive(
       if (match) {
         const funcName = match[0];
         const func = funcMap.get(funcName.toLowerCase());
-
-        // const start = i;
         i += funcName.length;
 
         if (func && expr[i] === "(") {
-          // Parse the parameters recursively
+          // We've found a known function call: extract its arguments
           const { args, end } = extractArgs(expr, i);
+          // Recursively parse each argument (to handle nested calls)
           const parsedArgs = args.map(parseExpression);
-          result += func.jsParser(
-            (func.parameters || []).map(
-              (param, i) =>
-                parsedArgs[i] ||
-                (param.mandatory ? defaultValue[param.type] : "")
-            )
+          // Build the replacement via jsParser, filling defaults if needed
+          const finalArgs = (func.parameters || []).map((paramDef, idx) =>
+            parsedArgs[idx] != null
+              ? parsedArgs[idx]
+              : paramDef.mandatory
+              ? paramDef.defaultValue || defaultValue[paramDef.type]
+              : ""
           );
+          result += func.jsParser(finalArgs);
           i = end + 1; // skip past ')'
         } else {
+          // Not a call, just output the identifier
           result += funcName;
         }
       } else {
+        // Any other character
         result += expr[i];
         i++;
       }
@@ -110,31 +116,56 @@ function replaceFunctionsRecursive(
     return result;
   }
 
-  // Extract arguments from a function call, respecting nested parentheses
+  /**
+   * Extracts the arguments of a function call, respecting:
+   *  - nested parentheses
+   *  - string literals (single- or double-quoted), so commas inside them are ignored
+   */
   function extractArgs(str: string, startIndex: number) {
-    let args = [];
+    const args: string[] = [];
     let current = "";
     let depth = 0;
+    let insideString = false;
+    let quoteChar = "";
     let i = startIndex + 1;
 
     while (i < str.length) {
       const char = str[i];
 
-      if (char === "(") {
+      // Toggle string state
+      if ((char === '"' || char === "'") && str[i - 1] !== "\\") {
+        if (insideString && char === quoteChar) {
+          insideString = false;
+          quoteChar = "";
+        } else if (!insideString) {
+          insideString = true;
+          quoteChar = char;
+        }
+        current += char;
+      }
+      // Enter nested parentheses
+      else if (char === "(" && !insideString) {
         depth++;
         current += char;
-      } else if (char === ")") {
+      }
+      // Close parentheses
+      else if (char === ")" && !insideString) {
         if (depth === 0) {
+          // end of this function's args
           if (current.trim()) args.push(current.trim());
           break;
         } else {
           depth--;
           current += char;
         }
-      } else if (char === "," && depth === 0) {
+      }
+      // Comma at top-level — real parameter separator
+      else if (char === "," && depth === 0 && !insideString) {
         args.push(current.trim());
         current = "";
-      } else {
+      }
+      // Any other character
+      else {
         current += char;
       }
 

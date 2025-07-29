@@ -39,8 +39,13 @@ export default function OutSystemsExpression_ToolPage() {
 
     try {
       const result = new Function(`
-        const window = undefined;
-        ${jsCode}
+        try {
+          const window = undefined;
+          ${jsCode}
+        }
+        catch(err){
+          return err;
+        }
       `)();
 
       if (
@@ -52,6 +57,9 @@ export default function OutSystemsExpression_ToolPage() {
         setResult(`#${dateTimeToString(result)}#`);
       } else if (typeof result === "boolean") {
         setResult(result ? "True" : "False");
+      } else if (result instanceof Error) {
+        console.debug("Error:", result);
+        setResult(undefined);
       } else {
         setResult(undefined);
       }

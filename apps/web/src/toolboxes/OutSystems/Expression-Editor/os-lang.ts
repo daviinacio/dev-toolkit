@@ -5,6 +5,22 @@ export type OutSystemsLangFunction = CustomLanguageFunction & {
   group?: string;
 };
 
+/** Template
+
+  {
+    label: "",
+    description: [
+      "",
+    ],
+    group: "",
+    parameters: [],
+    examples: [],
+    returnType: "Date",
+    jsParser: ([value]) => ``
+  }
+
+ */
+
 const UncategorizedFunctions: OutSystemsLangFunction[] = [
   {
     label: "If",
@@ -703,6 +719,80 @@ const DataConversionFunctions: OutSystemsLangFunction[] = [
 
 const FormatFunctions: OutSystemsLangFunction[] = [
   {
+    label: "FormatCurrency",
+    description: [
+      "Builds a Text output of the specified Currency 'value', preceded by the currency 'symbol', using 'decimal_digits' after the decimal point. The decimal point is specified using 'decimal_separator', while the thousands can be separated with the 'group_separator'.",
+      "",
+      "When rounding, the function behaves differently depending on where you use it:",
+      "",
+      "- In the application server, it applies the method round half up (rounds to the nearest integer, 0.5 rounds up).",
+      "- In client-side logic, it applies the method round half to even (rounds to the nearest integer, 0.5 rounds to the nearest even integer).",
+    ],
+    group: "Format",
+    parameters: [
+      {
+        name: "value",
+        type: "Decimal",
+        description: "The Decimal value to be formatted.",
+        mandatory: true,
+      },
+      {
+        name: "symbol",
+        type: "Text",
+        description: "The currency symbol.",
+        mandatory: true,
+      },
+      {
+        name: "decimal_digits",
+        type: "Integer",
+        description: "The number of decimal digits.",
+        mandatory: true,
+      },
+      {
+        name: "decimal_separator",
+        type: "Text",
+        description: "The decimal separator symbol.",
+        mandatory: true,
+        defaultValue: '"."',
+      },
+      {
+        name: "group_separator",
+        type: "Text",
+        description: " The group separator symbol.",
+        mandatory: true,
+        defaultValue: '","',
+      },
+    ],
+    examples: [
+      'FormatCurrency(1.2, "$", 1, "#", ".") = "$1#2"',
+      'FormatCurrency(1.2, "$", 3, ",", ".") = "$1,200"',
+      'FormatCurrency(1.24, "$", 1, ",", ".") = "$1,2"',
+      'FormatCurrency(1.25, "$", 1, ",", ".") = "$1,3" (in the application server) or "$1,2" (in client-side logic)',
+      'FormatCurrency(1.251, "$", 1, ",", ".") = "$1,3"',
+      'FormatCurrency(1.35, "$", 1, ",", ".") = "$1,4"',
+      'FormatCurrency(12345.67, "$", 2, ",", ".") = "$12.345,67"',
+      'FormatCurrency(-12345.67, "$", 2, ",", ".") = "$-12.345,67"',
+    ],
+    returnType: "Text",
+    jsParser: ([
+      value,
+      symbol,
+      decimal_digits,
+      decimal_separator,
+      group_separator,
+    ]) => `((value, symbol, decimal_digits, decimal_separator, group_separator) => {
+      const [num, dec = '0'] = String(
+        Math.round(value * Math.pow(10, decimal_digits)) /
+        Math.pow(10, decimal_digits)
+      ).split('.');
+
+      return symbol + ([
+        num.replace(/\\B(?=(\\d{3})+(?!\\d))/g, group_separator),
+        dec.padEnd(decimal_digits, '0')
+      ].join(decimal_separator));
+    })(${value}, ${symbol}, ${decimal_digits}, ${decimal_separator}, ${group_separator})`,
+  },
+  {
     label: "FormatDateTime",
     description: [
       "Builds a Text output of the specified Date Time 'value' using the specified 'format'. Formatting pattern can be any combination of the following:",
@@ -803,6 +893,73 @@ const FormatFunctions: OutSystemsLangFunction[] = [
           .join("\r\n        ")}
     })(${value}, ${format.replaceAll("\\", "\\\\")})`;
     },
+  },
+  {
+    label: "FormatDecimal",
+    description: [
+      "Builds a Text output of the specified Decimal 'value', using 'decimal_digits' after the decimal point. The decimal point is specified using 'decimal_separator', while the thousands can be separated with the 'group_separator'.",
+      "",
+      "When rounding, the function behaves differently depending on where you use it:",
+      "",
+      "- In the application server, it applies the method round half up (rounds to the nearest integer, 0.5 rounds up).",
+      "- In client-side logic, it applies the method round half to even (rounds to the nearest integer, 0.5 rounds to the nearest even integer).",
+    ],
+    group: "Format",
+    parameters: [
+      {
+        name: "value",
+        type: "Decimal",
+        description: "The Decimal value to be formatted.",
+        mandatory: true,
+      },
+      {
+        name: "decimal_digits",
+        type: "Integer",
+        description: "The number of decimal digits.",
+        mandatory: true,
+      },
+      {
+        name: "decimal_separator",
+        type: "Text",
+        description: "The decimal separator symbol.",
+        mandatory: true,
+        defaultValue: '"."',
+      },
+      {
+        name: "group_separator",
+        type: "Text",
+        description: " The group separator symbol.",
+        mandatory: true,
+        defaultValue: '","',
+      },
+    ],
+    examples: [
+      'FormatDecimal(1.2, 1, "#", ".") = "1#2"',
+      'FormatDecimal(1.2, 3, ",", ".") = "1,200"',
+      'FormatDecimal(1.24, 1, ",", ".") = "1,2"',
+      'FormatDecimal(1.25, 1, ",", ".") = "1,3" (in the application server) or "1,2" (in client-side logic)',
+      'FormatDecimal(1.251, 1, ",", ".") = "1,3"',
+      'FormatDecimal(1.35, 1, ",", ".") = "1,4"',
+      'FormatDecimal(12345.67, 2, ",", ".") = "12.345,67"',
+      'FormatDecimal(-12345.67, 2, ",", ".") = "-12.345,67"',
+    ],
+    returnType: "Text",
+    jsParser: ([
+      value,
+      decimal_digits,
+      decimal_separator,
+      group_separator,
+    ]) => `((value, decimal_digits, decimal_separator, group_separator) => {
+      const [num, dec = '0'] = String(
+        Math.round(value * Math.pow(10, decimal_digits)) /
+        Math.pow(10, decimal_digits)
+      ).split('.');
+
+      return [
+        num.replace(/\\B(?=(\\d{3})+(?!\\d))/g, group_separator),
+        dec.padEnd(decimal_digits, '0')
+      ].join(decimal_separator);
+    })(${value}, ${decimal_digits}, ${decimal_separator}, ${group_separator})`,
   },
 ];
 
