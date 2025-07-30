@@ -961,6 +961,61 @@ const FormatFunctions: OutSystemsLangFunction[] = [
       ].join(decimal_separator);
     })(${value}, ${decimal_digits}, ${decimal_separator}, ${group_separator})`,
   },
+  {
+    label: "FormatPercent",
+    description: [
+      "Builds a Text output of the specified Decimal 'value', followed by '%' using 'decimal_digits' after the decimal point. The decimal point is specified using 'decimal_separator'.",
+      "",
+      "When rounding, the function behaves differently depending on where you use it:",
+      "",
+      "- In the application server, it applies the method round half up (rounds to the nearest integer, 0.5 rounds up).",
+      "- In client-side logic, it applies the method round half to even (rounds to the nearest integer, 0.5 rounds to the nearest even integer).",
+    ],
+    group: "Format",
+    parameters: [
+      {
+        name: "value",
+        type: "Decimal",
+        description: "The Decimal value to format as a percentage.",
+        mandatory: true,
+      },
+      {
+        name: "decimal_digits",
+        type: "Integer",
+        description: "The number of decimal digits to use.",
+        mandatory: true,
+      },
+      {
+        name: "decimal_separator",
+        type: "Text",
+        description: "The symbol to use as decimal separator.",
+        mandatory: true,
+        defaultValue: '"."',
+      },
+    ],
+    examples: [
+      'FormatPercent(0.12, 3, "#") = "12#000%"',
+      'FormatPercent(0.124, 0, ",") = "12%"',
+      'FormatPercent(0.125, 0, ",") = "13%" (in the application server) or "12%" (in client-side logic)',
+      'FormatPercent(0.1251, 0, ",") = "13%"',
+      'FormatPercent(0.135, 0, ",") = "14%"',
+      'FormatPercent(12345.6789, 2, ",") = "1234567,89%"',
+      'FormatPercent(-12345.6789, 2, ",") = "-1234567,89%"',
+    ],
+    returnType: "Text",
+    jsParser: ([
+      value,
+      decimal_digits,
+      decimal_separator,
+    ]) => `((value, decimal_digits, decimal_separator) => {
+      const [num, dec = '0'] = String(
+        Math.round((value * 100) * Math.pow(10, decimal_digits)) /
+        Math.pow(10, decimal_digits)
+      ).split('.');
+
+      return [num, dec.padEnd(decimal_digits, '0')].join(decimal_separator) + "%";
+    })(${value}, ${decimal_digits}, ${decimal_separator})`,
+  },
 ];
 
 const EmailFunctions: OutSystemsLangFunction[] = [];
