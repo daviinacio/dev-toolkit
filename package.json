@@ -13,6 +13,8 @@
     "build:cli": "yarn workspace dev-toolkit-cli run build",
     "build:web": "yarn workspace dev-toolkit-web run build",
     "build": "run-p build:* --print-label",
+    "start:web": "yarn workspace dev-toolkit-web run preview",
+    "start": "run-p start:* --print-label",
     "deploy:web": "yarn workspace dev-toolkit-web run deploy",
     "deploy": "run-p deploy:* --print-label"
   },
