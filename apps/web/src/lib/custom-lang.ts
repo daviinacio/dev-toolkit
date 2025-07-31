@@ -32,6 +32,7 @@ export type CustomLanguageFunction = {
   jsParser: (params: Array<string>) => string;
   returnType: ParameterTypes;
   examples?: Array<string>;
+  javascriptDependency?: string;
 };
 
 export type CustomLanguage = {
@@ -53,14 +54,24 @@ export function transpileCustomCodeToJavascript(
   lang: CustomLanguage,
   snippet: string
 ): string {
-  let js = `return (${replaceFunctionsRecursive(
+  let dependencies = "";
+
+  for (let func of lang.functions || []) {
+    if (
+      !snippet.includes(`${func.label}(`) ||
+      !func.javascriptDependency ||
+      dependencies.includes(func.javascriptDependency)
+    )
+      continue;
+    dependencies += `${func.javascriptDependency};\r\n`;
+  }
+
+  const js = `${
+    dependencies !== "" ? `// Dependencies\r\n${dependencies}\r\n` : ""
+  }// Transpiled Code\r\nreturn (${replaceFunctionsRecursive(
     snippet,
     lang.functions || []
   )})`;
-
-  if (["DateTime", "Date"].some((it) => snippet.includes(it))) {
-    js = `Date.prototype.toString = function() {return '#' + this.toISOString().split("T").join(" ").split(".")[0] + '#';};\r\n${js}`;
-  }
 
   return js;
 }

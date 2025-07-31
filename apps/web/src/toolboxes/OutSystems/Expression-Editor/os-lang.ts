@@ -555,6 +555,7 @@ const DateAndTimeFunctions: OutSystemsLangFunction[] = [
     examples: [],
     returnType: "Date",
     jsParser: () => `new Date("${dateToString(new Date())} ")`,
+    javascriptDependency: `Date.prototype.toString = function() {return '#' + this.toISOString().split("T").join(" ").split(".")[0] + '#';}`,
   },
   {
     label: "CurrDateTime",
@@ -571,6 +572,7 @@ const DateAndTimeFunctions: OutSystemsLangFunction[] = [
     examples: [],
     returnType: "DateTime",
     jsParser: () => `new Date("${dateTimeToString(new Date())} UTC")`,
+    javascriptDependency: `Date.prototype.toString = function() {return '#' + this.toISOString().split("T").join(" ").split(".")[0] + '#';}`,
   },
   {
     label: "Second",
@@ -846,10 +848,6 @@ const FormatFunctions: OutSystemsLangFunction[] = [
     examples: [],
     returnType: "Date",
     jsParser: ([value, format]) => {
-      const convert_24h_12h = `function convert_24h_12h(hours) {
-        return hours == 0 ? 12 : ((hours -1) % 12) + 1;
-      }`;
-
       const replaces = {
         yyyy: "String(dt.getFullYear())",
         yy: "String(dt.getFullYear().toString().slice(-2))",
@@ -872,11 +870,7 @@ const FormatFunctions: OutSystemsLangFunction[] = [
         t: "dt.getHours() >= 12 ? 'P' : 'A'",
       };
 
-      return `((dt, f) => {${
-        ["hh", "h"].some((it) => format.includes(it))
-          ? `\r\n      ${convert_24h_12h}`
-          : ""
-      }
+      return `((dt, f) => {
       return (f)
         ${Object.entries(replaces)
           // .filter(([key]) => format.includes(key))
@@ -893,6 +887,7 @@ const FormatFunctions: OutSystemsLangFunction[] = [
           .join("\r\n        ")}
     })(${value}, ${format.replaceAll("\\", "\\\\")})`;
     },
+    javascriptDependency: `const convert_24h_12h = (hours) => hours == 0 ? 12 : ((hours -1) % 12) + 1;`,
   },
   {
     label: "FormatDecimal",
