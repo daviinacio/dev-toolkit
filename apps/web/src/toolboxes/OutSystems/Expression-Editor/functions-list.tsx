@@ -54,7 +54,12 @@ export function FunctionList() {
                                 </strong>
                               </div>
                               <div className="whitespace-break-spaces italic">
-                                {fn.description}
+                                {(typeof fn.description === "string"
+                                  ? [fn.description]
+                                  : fn.description || []
+                                ).map((line, i) => (
+                                  <div key={i}>{line}</div>
+                                ))}
                               </div>
                               {fn.parameters && fn.parameters.length > 0 && (
                                 <div className="mt-2">
@@ -71,7 +76,13 @@ export function FunctionList() {
                                           </strong>
                                         </div>
                                         <div className="ml-2 italic">
-                                          {param.description}
+                                          {(typeof param.description ===
+                                          "string"
+                                            ? [param.description]
+                                            : param.description || []
+                                          ).map((line, i) => (
+                                            <div key={i}>{line}</div>
+                                          ))}
                                         </div>
                                       </li>
                                     ))}
