@@ -34,6 +34,55 @@ program
   .option("-H, --horizontal", "Force horizontal 16x9 aspect ratio")
   .action(actions.compress.file);
 
+const cpf = program
+  .command("cpf")
+  .description("Generate or validate Brazilian CPF numbers.");
+
+cpf
+  .command("generate")
+  .description("Generate one or more valid CPF numbers.")
+  .option("-c, --count <number>", "How many CPFs to generate", NumericOption, 1)
+  .option("-f, --formatted", "Output with punctuation (000.000.000-00)", false)
+  .action(actions.cpf.generate);
+
+cpf
+  .command("validate")
+  .description("Validate a CPF number.")
+  .argument("<cpf>", "CPF number (with or without punctuation)")
+  .action(actions.cpf.validate);
+
+const cnpj = program
+  .command("cnpj")
+  .description("Generate or validate Brazilian CNPJ numbers.");
+
+cnpj
+  .command("generate")
+  .description("Generate one or more valid CNPJ numbers.")
+  .option("-c, --count <number>", "How many CNPJs to generate", NumericOption, 1)
+  .option(
+    "-f, --formatted",
+    "Output with punctuation (00.000.000/0000-00)",
+    false
+  )
+  .action(actions.cnpj.generate);
+
+cnpj
+  .command("validate")
+  .description("Validate a CNPJ number.")
+  .argument("<cnpj>", "CNPJ number (with or without punctuation)")
+  .action(actions.cnpj.validate);
+
+const person = program
+  .command("person")
+  .description("Generate fictional Brazilian person data.");
+
+person
+  .command("generate")
+  .description("Generate one or more fictional person records as JSON.")
+  .option("-c, --count <number>", "How many records", NumericOption, 1)
+  .option("-p, --pretty", "Pretty-print JSON", false)
+  .action(actions.person.generate);
+
 program.parseAsync(process.argv).catch((err) => {
   if (err instanceof CommanderError) {
     console.log(`Error (${err.code}): ${err.message}`);

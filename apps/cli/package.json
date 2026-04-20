@@ -4,16 +4,16 @@
   "repository": "https://github.com/daviinacio/dev-toolkit",
   "author": "Davi Inácio <aazz6850@gmail.com>",
   "license": "MIT",
-  "main": "./bin/main.js",
+  "main": "./bin/apps/cli/src/main.js",
   "bin": {
-    "dtk": "./bin/main.js"
+    "dtk": "./bin/apps/cli/src/main.js"
   },
   "type": "module",
   "scripts": {
     "dev": "tsc -w",
     "build": "rm -rf bin && tsc",
     "unlink-cli": "yarn --global unlink dev-toolkit-cli",
-    "link-cli": "(yarn unlink-cli || true) && chmod +x bin/main.js && yarn --global link",
+    "link-cli": "(yarn unlink-cli || true) && chmod +x bin/apps/cli/src/main.js && yarn --global link",
     "prepublish": "yarn build",
     "publish": "npm publish"
   },
@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "commander": "^13.1.0",
+    "common": "*",
     "mime": "^4.0.6"
   }
 }
