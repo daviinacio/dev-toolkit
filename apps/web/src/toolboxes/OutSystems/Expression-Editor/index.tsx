@@ -8,8 +8,7 @@ import { CodeEditor } from "@/components/ui/code-editor";
 import { transpileCustomCodeToJavascript } from "@/lib/custom-lang";
 import { useEffect, useState } from "react";
 import { FunctionList } from "./functions-list";
-import { OutSystemsLang } from "./os-lang";
-import { dateTimeToString } from "common/lib/utils";
+import { formatOutSystemsDate, OutSystemsLang } from "./os-lang";
 
 export default function OutSystemsExpression_ToolPage() {
   const [refresh, setRefresh] = useState(false);
@@ -54,7 +53,7 @@ export default function OutSystemsExpression_ToolPage() {
       ) {
         setResult(String(result));
       } else if (typeof result === "object" && result instanceof Date) {
-        setResult(`#${dateTimeToString(result)}#`);
+        setResult(formatOutSystemsDate(result));
       } else if (typeof result === "boolean") {
         setResult(result ? "True" : "False");
       } else if (result instanceof Error) {

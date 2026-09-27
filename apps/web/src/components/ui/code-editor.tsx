@@ -118,6 +118,7 @@ export function CodeEditor({
                 "keyword",
               ],
               [/\bTrue\b|\bFalse\b/, "constant"],
+              [/#[^#\r\n]*#/, "number"], // e.g. #2015-05-21#
               [/\b\w+(?=\()/, "function"], // e.g. IsNull()
               [/[a-zA-Z_]\w*/, "identifier"],
               [/\d+/, "number"],
