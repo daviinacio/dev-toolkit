@@ -1,7 +1,6 @@
 import { TextareaProps } from "@/components/ui/textarea";
 import { CustomLanguage, functionSnippet } from "@/lib/custom-lang";
-// import { usePreference } from "@/hooks/use-preference";
-// import { useTheme } from "@/hooks/use-theme";
+import { useTheme } from "@/providers/theme-provider";
 import { cn } from "@/lib/utils";
 import Editor, { Monaco, OnMount, useMonaco } from "@monaco-editor/react";
 import { NewLine, spacedCapitalize, Tabulation } from "common/lib/utils";
@@ -39,6 +38,26 @@ const editorDarkColors = {
   "symbolIcon.functionForeground": "#9aa0a6",
 };
 
+// The same roles with the light theme tokens (style/global.css)
+const editorLightColors = {
+  "editor.background": "#ffffff",
+  "editor.lineHighlightBackground": "#f1f2f4",
+  "editor.lineHighlightBorder": "#f1f2f4",
+  "editorLineNumber.foreground": "#9aa0a6",
+  "editorLineNumber.activeForeground": "#5f6368",
+  "editorCursor.foreground": "#4d7c0f",
+  "editor.selectionBackground": "#4d7c0f33",
+  "editorWidget.background": "#ffffff",
+  "editorWidget.border": "#d4d7dc",
+  "editorSuggestWidget.background": "#ffffff",
+  "editorSuggestWidget.border": "#d4d7dc",
+  "editorSuggestWidget.selectedBackground": "#f1f2f4",
+  "editorHoverWidget.background": "#ffffff",
+  "editorHoverWidget.border": "#d4d7dc",
+  // muted-foreground: 6:1 on white
+  "symbolIcon.functionForeground": "#5f6368",
+};
+
 export function CodeEditor({
   defaultValue,
   value,
@@ -49,7 +68,7 @@ export function CodeEditor({
   onEditorMount,
   ...props
 }: CodeEditorProps) {
-  // const theme = useTheme();
+  const { isDarkMode } = useTheme();
   const monaco = useMonaco() as Monaco;
   const editorRef = useRef(null);
   // const preferences = usePreference();
@@ -109,9 +128,7 @@ export function CodeEditor({
       base: "vs",
       inherit: true,
       rules: [],
-      colors: {
-        "editor.background": "#ffffff",
-      },
+      colors: editorLightColors,
     });
 
     try {
@@ -151,14 +168,21 @@ export function CodeEditor({
           },
         });
 
-        // The app's dark editor with the language's own text colors
-        if (lang.tokenColors)
-          monaco.editor.defineTheme(`${lang.id}-theme`, {
+        // The app's editor themes with the language's own text colors
+        if (lang.tokenColors) {
+          monaco.editor.defineTheme(`${lang.id}-light`, {
+            base: "vs",
+            inherit: true,
+            rules: lang.tokenColors.light,
+            colors: editorLightColors,
+          });
+          monaco.editor.defineTheme(`${lang.id}-dark`, {
             base: "vs-dark",
             inherit: true,
-            rules: lang.tokenColors,
+            rules: lang.tokenColors.dark,
             colors: editorDarkColors,
           });
+        }
 
         // 3. Optional: set basic config (e.g. comments)
         monaco.languages.setLanguageConfiguration(lang.id, {
@@ -258,11 +282,11 @@ export function CodeEditor({
         value={typeof value == "string" ? value : ""}
         defaultValue={typeof defaultValue == "string" ? defaultValue : ""}
         language={language}
-        theme={
+        theme={`${
           customLanguages.find((it) => it.id === language)?.tokenColors
-            ? `${language}-theme`
-            : "editor-dark"
-        }
+            ? language
+            : "editor"
+        }-${isDarkMode ? "dark" : "light"}`}
         className={cn(
           //"ring ring-primary rounded-sm overflow-hidden",
           "transition-colors",

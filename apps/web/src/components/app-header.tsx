@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useToolboxList } from "@/hooks/use-toolbox-list";
@@ -45,6 +46,7 @@ export function AppHeader({ onSearch }: { onSearch: () => void }) {
         <span className="hidden font-mono text-[10px] text-muted-foreground md:block">
           {toolCount} tools · free & open source
         </span>
+        <ThemeToggle />
         <Button asChild variant="outline" size="sm" className="text-[10px]">
           <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">
             GitHub ↗

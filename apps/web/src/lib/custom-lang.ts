@@ -59,8 +59,8 @@ export type CustomLanguage = {
   literals?: Array<CustomLanguageLiteral>;
   operators?: Array<CustomLanguageOperator>;
   lineComment?: string;
-  /** Text colors for the language, like its original IDE, over the app's editor theme */
-  tokenColors?: CustomLanguageTokenColors;
+  /** Text colors for the language, like its original IDE, over the app's editor themes */
+  tokenColors?: { light: CustomLanguageTokenColors; dark: CustomLanguageTokenColors };
 };
 
 /**

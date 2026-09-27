@@ -10,7 +10,7 @@ export function ToolCard({ toolbox, tool }: { toolbox: ToolBox; tool: Tool }) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-display text-sm font-semibold text-foreground transition-colors group-hover:text-white">
+          <span className="font-display text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
             {tool.name}
           </span>
           <Badge variant="outline">{toolbox.name}</Badge>

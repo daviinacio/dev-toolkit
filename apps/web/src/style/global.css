@@ -2,9 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design "devkit" (modules/design-figma): a single dark theme */
+/*
+ * Design "devkit" (modules/design-figma). The design is dark only: .dark is its palette,
+ * and :root is a light version of it with the same hues, darkened where it's text.
+ * ThemeProvider toggles .dark on <html>.
+ */
 @layer base {
   :root {
+    --background: 0 0% 98%; /* #fafafa */
+    --foreground: 220 9.1% 6.5%; /* #0f1012 */
+
+    --card: 0 0% 100%;
+    --card-foreground: var(--foreground);
+
+    --popover: var(--card);
+    --popover-foreground: var(--foreground);
+
+    /* #4d7c0f: the acid green can't be text on white (1.2:1), this is 4.8:1 */
+    --primary: 86 78.4% 27.3%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 12% 95.1%; /* #f1f2f4 */
+    --secondary-foreground: var(--foreground);
+
+    --muted: var(--secondary);
+    --muted-foreground: 213 4.5% 39%; /* #5f6368 */
+    --faint: 210 6.3% 62.7%; /* #9aa0a6, decorative only */
+
+    --accent: var(--secondary);
+    --accent-foreground: var(--foreground);
+
+    --destructive: 348 74% 44%; /* #c41d3d */
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 26 90.5% 37.1%; /* #b45309 */
+    --warning-foreground: 0 0% 100%;
+
+    --success: var(--primary);
+    --success-foreground: var(--primary-foreground);
+
+    --info: 193 82.3% 31%; /* #0e7490 */
+    --info-foreground: 0 0% 100%;
+
+    --border: 216 10.2% 90.4%; /* #e4e6e9 */
+    --input: 218 10.3% 84.7%; /* #d4d7dc */
+    --input-hover: 216 7.6% 74.1%; /* #b8bcc2 */
+    --ring: var(--primary);
+
+    --radius: 0.5rem;
+
+    --chart-1: var(--primary);
+    --chart-2: var(--info);
+    --chart-3: var(--warning);
+    --chart-4: var(--destructive);
+    --chart-5: 90 52.1% 47.5%; /* #7ab83a */
+
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--muted-foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--secondary);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--primary);
+
+    --header-background: var(--background);
+  }
+
+  .dark {
     --background: 210 11.1% 3.5%; /* #08090a */
     --foreground: 216 12.2% 92%; /* #e8eaed */
 
@@ -63,8 +128,6 @@
     --sidebar-ring: var(--primary);
 
     --header-background: var(--background);
-
-    color-scheme: dark;
   }
 }
 
@@ -100,6 +163,12 @@ html,
 body,
 #root {
   height: 100%;
+}
+
+/* Set by ThemeProvider for a frame, so switching themes doesn't animate every transition */
+.theme-changing,
+.theme-changing * {
+  transition: none !important;
 }
 
 input:-webkit-autofill,

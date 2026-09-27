@@ -7,13 +7,11 @@ import {
 } from "react";
 
 export type Preferences = {
-  theme: "system" | "light" | "dark";
   locale: string;
   "sidebar-open": boolean;
 };
 
 const defaultPreferences: Preferences = {
-  theme: "system",
   locale: "system",
   "sidebar-open": true,
 };

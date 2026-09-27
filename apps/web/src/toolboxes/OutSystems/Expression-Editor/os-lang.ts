@@ -2825,11 +2825,24 @@ const MiscellaneousFunctions: OutSystemsLangFunction[] = [];
 const RolesFunctions: OutSystemsLangFunction[] = [];
 
 /**
- * Service Studio's text colors (sampled from its light editor: functions #0000ff,
- * Text #800000, the rest black), lightened with the same hue to be readable on the
- * app's dark editor. Keywords, True/False and comments follow the same palette.
+ * Service Studio's text colors, sampled from its light editor: functions #0000ff,
+ * Text #800000, the rest black. Keywords, True/False and comments follow the same palette.
  */
-const OutSystemsTokenColors: CustomLanguageTokenColors = [
+const OutSystemsLightTokenColors: CustomLanguageTokenColors = [
+  { token: "function", foreground: "0000ff" },
+  { token: "keyword", foreground: "0000ff" },
+  { token: "constant", foreground: "0000ff" },
+  { token: "string", foreground: "800000" },
+  { token: "comment", foreground: "008000" },
+  { token: "identifier", foreground: "0f1012" },
+  { token: "number", foreground: "0f1012" },
+  { token: "date", foreground: "0f1012" },
+  { token: "operator", foreground: "0f1012" },
+  { token: "delimiter", foreground: "0f1012" },
+];
+
+/** The same colors lightened with the same hue, to be readable (7:1) on the dark editor */
+const OutSystemsDarkTokenColors: CustomLanguageTokenColors = [
   { token: "function", foreground: "9494ff" },
   { token: "keyword", foreground: "9494ff" },
   { token: "constant", foreground: "9494ff" },
@@ -2882,5 +2895,5 @@ export const OutSystemsLang: CustomLanguage & {
     },
   ],
   lineComment: "//",
-  tokenColors: OutSystemsTokenColors,
+  tokenColors: { light: OutSystemsLightTokenColors, dark: OutSystemsDarkTokenColors },
 };
