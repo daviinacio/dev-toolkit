@@ -137,3 +137,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# OutSystems modules and their extracted parts (module code, author e-mails): see docs/oml
+*.oml
+*-parts/
