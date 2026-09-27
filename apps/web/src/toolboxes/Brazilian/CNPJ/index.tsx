@@ -31,10 +31,9 @@ export default function BrazilianCnpj_ToolPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <label className="font-sm py-1 font-semibold">Brazilian / CNPJ</label>
 
-      <section className="rounded-md border p-4 flex flex-col gap-3">
-        <h2 className="font-semibold">Generate</h2>
+      <section className="rounded-lg border bg-card p-4 flex flex-col gap-3">
+        <h2 className="font-display font-semibold">Generate</h2>
         <p className="text-sm text-muted-foreground">
           Produces a random CNPJ with valid check digits. Useful for testing —
           never use for real registrations.
@@ -55,8 +54,8 @@ export default function BrazilianCnpj_ToolPage() {
         </div>
       </section>
 
-      <section className="rounded-md border p-4 flex flex-col gap-3">
-        <h2 className="font-semibold">Validate</h2>
+      <section className="rounded-lg border bg-card p-4 flex flex-col gap-3">
+        <h2 className="font-display font-semibold">Validate</h2>
         <p className="text-sm text-muted-foreground">
           Paste a CNPJ with or without punctuation.
         </p>
@@ -68,10 +67,10 @@ export default function BrazilianCnpj_ToolPage() {
         />
         <div
           className={cn(
-            "flex items-center gap-2 rounded-md px-3 py-2 text-sm",
+            "flex items-center gap-2 rounded-lg px-3 py-2 font-mono text-xs",
             status === "idle" && "bg-muted text-muted-foreground",
-            status === "valid" && "bg-green-100 text-green-900",
-            status === "invalid" && "bg-red-100 text-red-900"
+            status === "valid" && "bg-primary/10 text-primary",
+            status === "invalid" && "bg-destructive/10 text-destructive"
           )}
         >
           {status === "idle" && <span>Waiting for input…</span>}

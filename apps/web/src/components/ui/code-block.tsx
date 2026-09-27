@@ -20,7 +20,7 @@ export function CodeBlock({
 
   return (
     <div className={cn("relative", className)}>
-      <pre className="rounded-md bg-slate-900 text-slate-100 text-sm p-4 pr-12 font-mono overflow-x-auto">
+      <pre className="rounded-lg border border-border bg-background text-primary text-sm p-4 pr-12 font-mono overflow-x-auto">
         {code}
       </pre>
       <Button
@@ -28,7 +28,7 @@ export function CodeBlock({
         variant="ghost"
         onClick={handleCopy}
         title="Copy"
-        className="absolute top-2 right-2 text-slate-300 hover:text-white hover:bg-slate-800"
+        className="absolute top-2 right-2"
       >
         {copied ? <Check /> : <Copy />}
       </Button>
@@ -38,7 +38,7 @@ export function CodeBlock({
 
 export function InlineCode({ children }: { children: ReactNode }) {
   return (
-    <code className="font-mono bg-muted px-1.5 py-0.5 rounded text-xs">
+    <code className="font-mono bg-secondary text-foreground px-1.5 py-0.5 rounded text-xs">
       {children}
     </code>
   );

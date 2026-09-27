@@ -12,21 +12,21 @@ export type VariablesPanelProps = {
 
 export function VariablesPanel({ variables, values, onChange }: VariablesPanelProps) {
   return (
-    <div className="rounded-md border mt-2 px-3 py-2">
-      <div className="flex items-center gap-x-1 font-semibold">
-        <VariableIcon size={18} />
+    <div className="rounded-lg border bg-card px-4 py-3">
+      <div className="flex items-center gap-x-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        <VariableIcon size={14} />
         Variables
       </div>
 
       {variables.length === 0 ? (
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1 text-xs text-muted-foreground">
           Variables used in the expression, like <code>StartDate</code> in{" "}
           <code>FormatDateTime(StartDate, "yyyy/MMM")</code>, show up here so you
           can give them a test value.
         </p>
       ) : (
         <>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="mt-1 text-xs text-muted-foreground">
             Write each test value as an OutSystems expression, e.g.{" "}
             <code>"text"</code>, <code>10</code>, <code>2.5</code>,{" "}
             <code>True</code>, <code>#2024-05-10#</code> or <code>CurrDate()</code>.
@@ -65,7 +65,7 @@ function VariableRow({
 
   return (
     <>
-      <label htmlFor={`variable-${name}`} className="font-mono text-sm">
+      <label htmlFor={`variable-${name}`} className="font-mono text-sm text-foreground">
         {name}
       </label>
       <Input
@@ -79,7 +79,7 @@ function VariableRow({
       />
       <span
         className={cn(
-          "text-xs w-20",
+          "w-20 font-mono text-[10px] uppercase tracking-widest",
           invalid ? "text-destructive" : "text-muted-foreground"
         )}
         title={evaluation?.variables.length ? "Test values can't use other variables" : evaluation?.error}

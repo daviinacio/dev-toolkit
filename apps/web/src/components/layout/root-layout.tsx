@@ -31,7 +31,7 @@ export function RootLayout({ children, className, appName }: RootLayoutProps) {
   return (
     <div
       className={cn(
-        "min-h-full flex w-full flex-col bg-zinc-50 dark:bg-zinc-900/50",
+        "min-h-full flex w-full flex-col bg-background",
         className
       )}
     >

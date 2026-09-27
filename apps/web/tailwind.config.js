@@ -1,4 +1,5 @@
 import plugin from 'tailwindcss/plugin';
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -9,6 +10,11 @@ export default {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['Inter', ...defaultTheme.fontFamily.sans],
+  			mono: ['"JetBrains Mono"', ...defaultTheme.fontFamily.mono],
+  			display: ['"Bricolage Grotesque"', ...defaultTheme.fontFamily.sans]
+  		},
   		dropShadow: {
   			text: [
   				'0 2px 3px rgba(0, 0, 0, 0.7)'
@@ -60,6 +66,20 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			},
+  			warning: {
+  				DEFAULT: 'hsl(var(--warning))',
+  				foreground: 'hsl(var(--warning-foreground))'
+  			},
+  			success: {
+  				DEFAULT: 'hsl(var(--success))',
+  				foreground: 'hsl(var(--success-foreground))'
+  			},
+  			info: {
+  				DEFAULT: 'hsl(var(--info))',
+  				foreground: 'hsl(var(--info-foreground))'
+  			},
+  			faint: 'hsl(var(--faint))',
+  			'input-hover': 'hsl(var(--input-hover))',
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',

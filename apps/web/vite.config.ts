@@ -21,6 +21,20 @@ export default defineConfig({
         sourcemap: true,
         runtimeCaching: [
           {
+            // Fonts of the design, so the app keeps them offline
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts",
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+              expiration: {
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+            },
+          },
+          {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/monaco-editor\/*/,
             handler: "CacheFirst",
             options: {

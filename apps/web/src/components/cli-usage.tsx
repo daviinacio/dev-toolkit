@@ -9,10 +9,10 @@ export type CliCommand = {
 
 export function CliUsage({ commands }: { commands: CliCommand[] }) {
   return (
-    <section className="rounded-md border p-4 flex flex-col gap-3">
+    <section className="rounded-lg border bg-card p-4 flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <Terminal className="size-4" />
-        <h2 className="font-semibold">Run from the CLI</h2>
+        <h2 className="font-display font-semibold">Run from the CLI</h2>
       </div>
       <p className="text-sm text-muted-foreground">
         The same tool is available as <InlineCode>dtk</InlineCode>.{" "}

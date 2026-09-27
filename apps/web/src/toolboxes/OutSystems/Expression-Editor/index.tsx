@@ -5,12 +5,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CodeEditor, CodeEditorInstance } from "@/components/ui/code-editor";
+import { cn } from "@/lib/utils";
 import { CustomLanguageFunction, functionSnippet } from "@/lib/custom-lang";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { evaluateExpression } from "./evaluate";
 import { FunctionList } from "./functions-list";
 import { OutSystemsLang } from "./os-lang";
 import { VariablesPanel } from "./variables-panel";
+
+const sectionLabel = "font-mono text-[10px] uppercase tracking-widest text-muted-foreground";
 
 /** Monaco's built-in snippet contribution, the one the autocomplete uses (not exported in its types) */
 type SnippetController = { insert: (template: string) => void };
@@ -55,23 +58,23 @@ export default function OutSystemsExpression_ToolPage() {
   );
 
   return (
-    <div className="">
-      <label className="font-sm py-1 font-semibold">
-        OutSystems / Expression Editor
-      </label>
-
-      <div className="h-96 flex gap-x-2">
-        <div className="h-full flex-1">
-          <CodeEditor
-            language="outsystems"
-            customLanguages={[OutSystemsLang]}
-            value={outsystemsCode}
-            onChange={setOutsystemsCode}
-            onEditorMount={(editor) => (editorRef.current = editor)}
-          />
+    <div className="flex flex-col gap-4">
+      <div className="flex h-96 gap-3">
+        <div className="flex h-full min-w-0 flex-1 flex-col gap-1.5">
+          <label className={sectionLabel}>Expression</label>
+          <div className="min-h-0 flex-1">
+            <CodeEditor
+              language="outsystems"
+              customLanguages={[OutSystemsLang]}
+              value={outsystemsCode}
+              onChange={setOutsystemsCode}
+              onEditorMount={(editor) => (editorRef.current = editor)}
+            />
+          </div>
         </div>
         <FunctionList onSelect={insertFunction} />
       </div>
+
       <VariablesPanel
         variables={evaluation.variables}
         values={variableValues}
@@ -79,40 +82,31 @@ export default function OutSystemsExpression_ToolPage() {
           setVariableValues((values) => ({ ...values, [name.toLowerCase()]: value }))
         }
       />
-      <div className="bg-slate-400 rounded-md h-28 mt-2 px-3 py-2 relative">
-        <span className="absolute top-0 right-0 px-2 py-1 text-sm font-semibold bg-inherit">
-          Final result
-        </span>
-        <pre className="whitespace-pre-wrap">
+
+      <div className="flex flex-col gap-1.5">
+        <label className={sectionLabel}>Result</label>
+        <pre className="min-h-28 whitespace-pre-wrap rounded-lg border bg-background px-3 py-2 font-mono text-sm">
           {evaluation.error ? (
-            <p className="text-red-900">Error: {evaluation.error}</p>
+            <span className="text-destructive">✕ {evaluation.error}</span>
+          ) : evaluation.text !== undefined ? (
+            <span className="text-primary">{evaluation.text}</span>
           ) : (
-            evaluation.text ?? (
-              <p className="text-slate-200">
-                Type something in the code editor above.
-              </p>
-            )
+            <span className="text-faint">result appears here...</span>
           )}
         </pre>
       </div>
 
-      <Accordion type="single" collapsible className="mt-8">
+      <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
-          <AccordionTrigger className="py-1">Extra for nerds</AccordionTrigger>
+          <AccordionTrigger className={cn(sectionLabel, "py-2")}>
+            Extra for nerds · transpiled JavaScript
+          </AccordionTrigger>
           <AccordionContent>
-            <div className="bg-slate-400 rounded-md min-h-28 px-3 py-2 relative">
-              <span className="absolute top-0 right-0 px-2 py-1 text-sm font-semibold bg-inherit">
-                Transpiled Javascript
-              </span>
-              <pre>
-                {evaluation.javascript}
-                {evaluation.javascript === "" && (
-                  <p className="text-slate-200">
-                    Type something in the code editor above.
-                  </p>
-                )}
-              </pre>
-            </div>
+            <pre className="min-h-28 overflow-x-auto rounded-lg border bg-background px-3 py-2 font-mono text-xs text-muted-foreground">
+              {evaluation.javascript || (
+                <span className="text-faint">the transpiled code appears here...</span>
+              )}
+            </pre>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

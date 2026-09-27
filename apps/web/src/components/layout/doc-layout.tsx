@@ -2,21 +2,14 @@ import { cn } from "@/lib/utils";
 import { RootLayout } from ".";
 import { Outlet } from "react-router-dom";
 
+import { AppBreadcrumb } from "@/components/app-breadcrumb";
+import { AppHeader } from "@/components/app-header";
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { CommandPalette } from "@/components/command-palette";
+import { ToolHeader } from "@/components/tool-card";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { useActiveTool } from "@/hooks/use-toolbox-list";
+import { CSSProperties, useEffect, useState } from "react";
 import { ScrollArea } from "../ui/scroll-area";
 
 type DocumentationLayoutProps = {
@@ -26,38 +19,51 @@ type DocumentationLayoutProps = {
 export default function DocumentationLayout({
   className,
 }: DocumentationLayoutProps) {
-  const children = <Outlet />;
+  const { toolbox, tool } = useActiveTool();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        e.stopPropagation();
+        setSearchOpen((open) => !open);
+      }
+    }
+    // Capture phase, so it also works while the code editor has focus
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, []);
 
   return (
-    <RootLayout className={cn(className)} appName="Developer Toolkit">
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b">
-            <div className="flex items-center gap-2 px-3">
-              <SidebarTrigger />
-              <Separator orientation="vertical" className="mr-2 h-4" />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="#">
-                      TODO: Implement Breadcrumb
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>...</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+    <RootLayout className={cn("h-full", className)} appName="Developer Toolkit">
+      <SidebarProvider
+        className="h-full min-h-0 flex-col"
+        style={{ "--sidebar-width": "13rem" } as CSSProperties}
+      >
+        <AppHeader onSearch={() => setSearchOpen(true)} />
+
+        <div className="flex min-h-0 flex-1">
+          <AppSidebar />
+
+          <main className="flex min-w-0 flex-1 flex-col">
+            <AppBreadcrumb />
+            <div className="relative min-h-0 flex-1">
+              <ScrollArea fit>
+                {toolbox && tool ? (
+                  <div className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-8">
+                    <ToolHeader toolbox={toolbox} tool={tool} />
+                    <Outlet />
+                  </div>
+                ) : (
+                  <Outlet />
+                )}
+              </ScrollArea>
             </div>
-          </header>
-          <div className="relative pr-0.5 flex-1 h-full">
-            <ScrollArea fit>
-              <div className="p-4 pr-3.5">{children}</div>
-            </ScrollArea>
-          </div>
-        </SidebarInset>
+          </main>
+        </div>
+
+        <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
       </SidebarProvider>
     </RootLayout>
   );

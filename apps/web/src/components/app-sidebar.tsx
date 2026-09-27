@@ -1,106 +1,98 @@
-import * as React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
+  SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarRail,
 } from "@/components/ui/sidebar";
+import { useActiveTool, useToolboxList } from "@/hooks/use-toolbox-list";
+import { cn } from "@/lib/utils";
+import { Link, useLocation } from "react-router-dom";
 
-import { ToolCaseIcon } from "lucide-react";
-
-import pkg from "../../package.json";
-import { useToolboxList } from "@/hooks/use-toolbox-list";
-import { Link } from "react-router-dom";
-
-const defaultSidebar = [
-  {
-    title: "CLI version",
-    url: "/cli",
-    items: [
-      {
-        title: "Installation",
-        url: "/cli/#installation",
-      },
-    ],
-  },
-];
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+/**
+ * Laid out below the header like the design, so it's never fixed or collapsible.
+ * On small screens it's hidden and the search (Ctrl+K) is the navigation.
+ */
+export function AppSidebar({ className }: { className?: string }) {
   const toolboxes = useToolboxList();
-  const sidebar = React.useMemo(
-    () => [
-      ...defaultSidebar,
-      ...toolboxes.map((toolbox) => ({
-        title: toolbox.name,
-        url: `/${toolbox.path}`,
-        items: toolbox.tools.map((tool) => ({
-          title: (
-            <>
-              <ToolCaseIcon /> {tool.name}
-            </>
-          ),
-          url: `/${toolbox.path}/${tool.path}`,
-        })),
-      })),
-    ],
-    [toolboxes]
-  );
+  const { toolbox: activeToolbox, tool: activeTool } = useActiveTool();
+  const { pathname } = useLocation();
+  const toolCount = toolboxes.reduce((sum, it) => sum + it.tools.length, 0);
 
   return (
-    <Sidebar {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <GalleryVerticalEnd className="size-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Dev Toolkit</span>
-                  <span className="">v{pkg.version}</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
+    <Sidebar collapsible="none" className={cn("hidden border-r md:flex", className)}>
+      <SidebarContent className="gap-0 py-2">
         <SidebarGroup>
+          <SidebarGroupLabel>Toolboxes</SidebarGroupLabel>
           <SidebarMenu>
-            {sidebar.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <Link to={item.url} className="font-medium">
-                    {item.title}
-                  </Link>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={pathname === "/"}>
+                <Link to="/">All tools</Link>
+              </SidebarMenuButton>
+              <SidebarMenuBadge className="font-mono text-[10px] text-muted-foreground">
+                {toolCount}
+              </SidebarMenuBadge>
+            </SidebarMenuItem>
+            {toolboxes.map((toolbox) => (
+              <SidebarMenuItem key={toolbox.path}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={activeToolbox?.path === toolbox.path && !activeTool}
+                >
+                  <Link to={`/${toolbox.path}`}>{toolbox.name}</Link>
                 </SidebarMenuButton>
-                {item.items?.length ? (
-                  <SidebarMenuSub>
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.url}>
-                        <SidebarMenuSubButton asChild isActive={false}>
-                          <Link to={item.url}>{item.title}</Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null}
+                <SidebarMenuBadge className="font-mono text-[10px] text-muted-foreground">
+                  {toolbox.tools.length}
+                </SidebarMenuBadge>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
         </SidebarGroup>
+
+        {activeToolbox && (
+          <SidebarGroup>
+            <SidebarGroupLabel>{activeToolbox.name}</SidebarGroupLabel>
+            <SidebarMenu>
+              {activeToolbox.tools.map((tool) => {
+                const isActive = activeTool?.path === tool.path;
+                return (
+                  <SidebarMenuItem key={tool.path}>
+                    <SidebarMenuButton asChild isActive={isActive}>
+                      <Link to={`/${activeToolbox.path}/${tool.path}`}>
+                        {isActive && (
+                          <span className="size-1 shrink-0 rounded-full bg-primary" />
+                        )}
+                        <span>{tool.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Command line</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={pathname.startsWith("/cli")}>
+                <Link to="/cli">Installation</Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
-      <SidebarRail />
+
+      <SidebarFooter className="mx-2 border-t px-2 py-4">
+        <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">
+          Everything runs in your browser. Your data never leaves it.
+        </p>
+      </SidebarFooter>
     </Sidebar>
   );
 }

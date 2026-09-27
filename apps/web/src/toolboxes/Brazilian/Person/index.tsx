@@ -31,16 +31,15 @@ export default function BrazilianPerson_ToolPage() {
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      <label className="font-sm py-1 font-semibold">Brazilian / Person</label>
 
-      <section className="rounded-md border p-4 flex flex-col gap-3">
+      <section className="rounded-lg border bg-card p-4 flex flex-col gap-3">
         <p className="text-sm text-muted-foreground">
           Generates fictional Brazilian person records as JSON. All CPFs are
           mathematically valid but random — for testing only.
         </p>
         <div className="flex gap-2 items-end">
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium">Count (1–100)</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Count (1–100)</span>
             <Input
               type="number"
               min={1}
@@ -61,7 +60,7 @@ export default function BrazilianPerson_ToolPage() {
         </div>
       </section>
 
-      <pre className="flex-1 min-h-96 max-h-[60vh] overflow-auto rounded-md bg-slate-900 text-slate-100 text-sm p-4 font-mono">
+      <pre className="flex-1 min-h-96 max-h-[60vh] overflow-auto rounded-lg border bg-background text-primary text-xs p-4 font-mono">
         {json}
       </pre>
 
