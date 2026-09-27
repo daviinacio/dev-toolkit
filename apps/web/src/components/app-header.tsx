@@ -1,3 +1,4 @@
+import { AppLogo } from "@/components/app-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
@@ -14,11 +15,7 @@ export function AppHeader({ onSearch }: { onSearch: () => void }) {
   return (
     <header className="z-30 flex h-12 shrink-0 items-center gap-4 border-b bg-background px-4">
       <Link to="/" className="flex shrink-0 items-center gap-2.5">
-        <div className="flex size-6 items-center justify-center rounded bg-primary">
-          <span className="font-mono text-[9px] font-bold leading-none text-primary-foreground">
-            DK
-          </span>
-        </div>
+        <AppLogo />
         <span className="font-display text-sm font-semibold tracking-tight">
           Dev Toolkit
         </span>

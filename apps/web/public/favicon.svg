@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dev Toolkit: a terminal prompt (>_) in the design's acid green. Same shapes as src/components/app-logo.tsx -->
+  <rect width="32" height="32" rx="7" fill="#b8ff57" />
+  <path d="M9 10.5 14.5 16 9 21.5" fill="none" stroke="#08090a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M17.5 21.5H23.5" fill="none" stroke="#08090a" stroke-width="3.2" stroke-linecap="round" />
+</svg>

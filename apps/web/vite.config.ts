@@ -12,8 +12,19 @@ export default defineConfig({
         name: "Dev Toolkit by {daviinacio}",
         short_name: "Dev Toolkit",
         start_url: "/",
-        background_color: "#ffffff",
-        theme_color: "#000000",
+        background_color: "#08090a",
+        theme_color: "#08090a",
+        icons: [
+          { src: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
+          { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+          { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+          {
+            src: "/icon-maskable-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
+          },
+        ],
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest}"],
