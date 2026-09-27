@@ -103,28 +103,80 @@ export function isValidParameter(text: string): boolean {
   return true;
 }
 
-export function transpileCustomCodeToJavascript(
+export type TranspileResult = {
+  javascript: string;
+  /** Variables used by the snippet, in order of appearance, spelled as first written */
+  variables: Array<string>;
+};
+
+/**
+ * Identifiers that aren't function calls are variables (e.g. `StartDate` or `GetUsers.List.Current.Name`).
+ * Their test values are written in the language itself (e.g. `#2024-05-10#` or `"text"`),
+ * keyed by variable name case-insensitively.
+ */
+export function transpileCustomCode(
   lang: CustomLanguage,
-  snippet: string
-): string {
+  snippet: string,
+  variableValues: Record<string, string> = {}
+): TranspileResult {
   const dependencies = new Set<string>();
+  // Lowercase name -> name as first written, since names are case-insensitive
+  const found = new Map<string, string>();
+  const useVariable = (name: string) => {
+    const key = name.toLowerCase();
+    if (!found.has(key)) found.set(key, name);
+    return `__variable(${JSON.stringify(found.get(key))})`;
+  };
 
   let transpiled: string;
   try {
-    transpiled = transpileExpression(lang, snippet, dependencies);
+    transpiled = transpileExpression(lang, snippet, dependencies, useVariable);
   } catch (err) {
     if (!(err instanceof TranspileError)) throw err;
     // Surface syntax errors when the code runs, like any other runtime error
-    return `// Transpile error\r\nthrow new Error(${JSON.stringify(err.message)})`;
+    return {
+      javascript: `// Transpile error\r\nthrow new Error(${JSON.stringify(err.message)})`,
+      variables: [...found.values()],
+    };
   }
+
+  const values = new Map(
+    Object.entries(variableValues).map(([name, value]) => [name.toLowerCase(), value])
+  );
+  const variableCode = [...found.entries()]
+    .filter(([key]) => values.get(key)?.trim())
+    .map(([key, name]) => {
+      // Values are evaluated when used, so an invalid value only fails expressions that use it
+      try {
+        const value = transpileExpression(lang, values.get(key)!, dependencies, () => {
+          throw new TranspileError("Test values can't use other variables");
+        });
+        return `  ${JSON.stringify(name)}: () => (${value}),\r\n`;
+      } catch (err) {
+        if (!(err instanceof TranspileError)) throw err;
+        const message = `Invalid test value for '${name}': ${err.message}`;
+        return `  ${JSON.stringify(name)}: () => { throw new Error(${JSON.stringify(message)}) },\r\n`;
+      }
+    })
+    .join("");
 
   const dependencyCode = [...dependencies]
     .map((dependency) => `${dependency};\r\n`)
     .join("");
 
-  return `${
-    dependencyCode !== "" ? `// Dependencies\r\n${dependencyCode}\r\n` : ""
-  }// Transpiled Code\r\nreturn (${transpiled})`;
+  return {
+    javascript: `${
+      dependencyCode !== "" ? `// Dependencies\r\n${dependencyCode}\r\n` : ""
+    }${
+      found.size > 0
+        ? `// Variables\r\nconst __variables = {\r\n${variableCode}};\r\n` +
+          `const __variable = (name) => {\r\n` +
+          `  if (!(name in __variables)) throw new Error("Variable '" + name + "' has no test value");\r\n` +
+          `  return __variables[name]();\r\n};\r\n\r\n`
+        : ""
+    }// Transpiled Code\r\nreturn (${transpiled})`,
+    variables: [...found.values()],
+  };
 }
 
 class TranspileError extends Error {}
@@ -221,10 +273,14 @@ function tokenize(lang: CustomLanguage, input: string, dependencies: Set<string>
 }
 
 /** Precedence-climbing parser that emits JS while it parses */
+/** Turns an identifier that isn't a function call into JS */
+type IdentifierHandler = (name: string) => string;
+
 function transpileExpression(
   lang: CustomLanguage,
   input: string,
-  dependencies: Set<string>
+  dependencies: Set<string>,
+  onIdentifier: IdentifierHandler
 ): string {
   const tokens = tokenize(lang, input, dependencies);
   const functions = new Map(
@@ -300,7 +356,7 @@ function transpileExpression(
     }
 
     if (token.kind === "identifier") {
-      if (!isPunctuation("(")) return token.text;
+      if (!isPunctuation("(")) return onIdentifier(token.text);
       pos++;
 
       const args: string[] = [];
@@ -322,7 +378,9 @@ function transpileExpression(
           ? transpileExpression(
               lang,
               paramDef.defaultValue || defaultValue[paramDef.type],
-              dependencies
+              dependencies,
+              // Defaults are trusted JS-compatible code, e.g. Object's `null`
+              (name) => name
             )
           : ""
       );

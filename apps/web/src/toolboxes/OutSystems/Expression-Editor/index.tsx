@@ -5,14 +5,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CodeEditor, CodeEditorInstance } from "@/components/ui/code-editor";
-import {
-  CustomLanguageFunction,
-  functionSnippet,
-  transpileCustomCodeToJavascript,
-} from "@/lib/custom-lang";
-import { useEffect, useRef, useState } from "react";
+import { CustomLanguageFunction, functionSnippet } from "@/lib/custom-lang";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { evaluateExpression } from "./evaluate";
 import { FunctionList } from "./functions-list";
-import { formatOutSystemsDate, OutSystemsLang } from "./os-lang";
+import { OutSystemsLang } from "./os-lang";
+import { VariablesPanel } from "./variables-panel";
 
 /** Monaco's built-in snippet contribution, the one the autocomplete uses (not exported in its types) */
 type SnippetController = { insert: (template: string) => void };
@@ -33,11 +31,12 @@ export default function OutSystemsExpression_ToolPage() {
   };
 
   const [outsystemsCode, setOutsystemsCode] = useState<string>();
-  const [transpiledJavascript, setTranspiledJavascript] = useState("");
-  const [result, setResult] = useState<string>();
+  // Test values keyed by lowercase variable name, kept even while a variable is out of the code
+  const [variableValues, setVariableValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (["CurrDateTime()"].every((it) => !outsystemsCode?.includes(it))) return;
+    const code = [outsystemsCode, ...Object.values(variableValues)].join("\n");
+    if (!code.includes("CurrDateTime()") && !code.includes("CurrTime()")) return;
 
     const interval = setInterval(() => {
       setRefresh((p) => !p);
@@ -46,46 +45,14 @@ export default function OutSystemsExpression_ToolPage() {
     return () => {
       clearInterval(interval);
     };
-  }, [outsystemsCode]);
+  }, [outsystemsCode, variableValues]);
 
-  useEffect(() => {
-    const jsCode = transpileCustomCodeToJavascript(
-      OutSystemsLang,
-      outsystemsCode || ""
-    );
-    setTranspiledJavascript(jsCode);
-
-    try {
-      const result = new Function(`
-        try {
-          const window = undefined;
-          ${jsCode}
-        }
-        catch(err){
-          return err;
-        }
-      `)();
-
-      if (
-        typeof result === "string" ||
-        (typeof result === "number" && !Number.isNaN(result))
-      ) {
-        setResult(String(result));
-      } else if (typeof result === "object" && result instanceof Date) {
-        setResult(formatOutSystemsDate(result));
-      } else if (typeof result === "boolean") {
-        setResult(result ? "True" : "False");
-      } else if (result instanceof Error) {
-        console.debug("Error:", result);
-        setResult(undefined);
-      } else {
-        setResult(undefined);
-      }
-    } catch (err) {
-      console.debug(err);
-      setResult(undefined);
-    }
-  }, [outsystemsCode, refresh]);
+  const evaluation = useMemo(
+    () => evaluateExpression(outsystemsCode || "", variableValues),
+    // refresh re-runs expressions that use the current time
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [outsystemsCode, variableValues, refresh]
+  );
 
   return (
     <div className="">
@@ -105,16 +72,26 @@ export default function OutSystemsExpression_ToolPage() {
         </div>
         <FunctionList onSelect={insertFunction} />
       </div>
+      <VariablesPanel
+        variables={evaluation.variables}
+        values={variableValues}
+        onChange={(name, value) =>
+          setVariableValues((values) => ({ ...values, [name.toLowerCase()]: value }))
+        }
+      />
       <div className="bg-slate-400 rounded-md h-28 mt-2 px-3 py-2 relative">
         <span className="absolute top-0 right-0 px-2 py-1 text-sm font-semibold bg-inherit">
           Final result
         </span>
         <pre className="whitespace-pre-wrap">
-          {/* {result || ""} */}
-          {result ?? (
-            <p className="text-slate-200">
-              Type something in the code editor above.
-            </p>
+          {evaluation.error ? (
+            <p className="text-red-900">Error: {evaluation.error}</p>
+          ) : (
+            evaluation.text ?? (
+              <p className="text-slate-200">
+                Type something in the code editor above.
+              </p>
+            )
           )}
         </pre>
       </div>
@@ -128,8 +105,8 @@ export default function OutSystemsExpression_ToolPage() {
                 Transpiled Javascript
               </span>
               <pre>
-                {transpiledJavascript}
-                {transpiledJavascript === "" && (
+                {evaluation.javascript}
+                {evaluation.javascript === "" && (
                   <p className="text-slate-200">
                     Type something in the code editor above.
                   </p>
