@@ -91,6 +91,13 @@ export type CustomLanguageOperator = {
     }
 );
 
+/** Monaco snippet of a function call, with each parameter as a tab stop: `Abs(${1:n})` */
+export function functionSnippet(func: CustomLanguageFunction): string {
+  return `${func.label}(${(func.parameters || [])
+    .map(({ name }, i) => "$" + `{${i + 1}:${name}}`)
+    .join(", ")})`;
+}
+
 export function isValidParameter(text: string): boolean {
   text = text;
   return true;

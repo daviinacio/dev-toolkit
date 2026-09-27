@@ -4,14 +4,33 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CodeEditor } from "@/components/ui/code-editor";
-import { transpileCustomCodeToJavascript } from "@/lib/custom-lang";
-import { useEffect, useState } from "react";
+import { CodeEditor, CodeEditorInstance } from "@/components/ui/code-editor";
+import {
+  CustomLanguageFunction,
+  functionSnippet,
+  transpileCustomCodeToJavascript,
+} from "@/lib/custom-lang";
+import { useEffect, useRef, useState } from "react";
 import { FunctionList } from "./functions-list";
 import { formatOutSystemsDate, OutSystemsLang } from "./os-lang";
 
+/** Monaco's built-in snippet contribution, the one the autocomplete uses (not exported in its types) */
+type SnippetController = { insert: (template: string) => void };
+
 export default function OutSystemsExpression_ToolPage() {
   const [refresh, setRefresh] = useState(false);
+  const editorRef = useRef<CodeEditorInstance>();
+
+  // Inserts the call at the cursor (or over the selection), like picking it from the autocomplete
+  const insertFunction = (fn: CustomLanguageFunction) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.focus();
+    const snippets = editor.getContribution(
+      "snippetController2"
+    ) as unknown as SnippetController | null;
+    snippets?.insert(functionSnippet(fn));
+  };
 
   const [outsystemsCode, setOutsystemsCode] = useState<string>();
   const [transpiledJavascript, setTranspiledJavascript] = useState("");
@@ -81,9 +100,10 @@ export default function OutSystemsExpression_ToolPage() {
             customLanguages={[OutSystemsLang]}
             value={outsystemsCode}
             onChange={setOutsystemsCode}
+            onEditorMount={(editor) => (editorRef.current = editor)}
           />
         </div>
-        <FunctionList />
+        <FunctionList onSelect={insertFunction} />
       </div>
       <div className="bg-slate-400 rounded-md h-28 mt-2 px-3 py-2 relative">
         <span className="absolute top-0 right-0 px-2 py-1 text-sm font-semibold bg-inherit">

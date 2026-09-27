@@ -1,9 +1,9 @@
 import { TextareaProps } from "@/components/ui/textarea";
-import { CustomLanguage } from "@/lib/custom-lang";
+import { CustomLanguage, functionSnippet } from "@/lib/custom-lang";
 // import { usePreference } from "@/hooks/use-preference";
 // import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
-import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
+import Editor, { Monaco, OnMount, useMonaco } from "@monaco-editor/react";
 import { NewLine, spacedCapitalize, Tabulation } from "common/lib/utils";
 import { useCallback, useEffect, useRef } from "react";
 // import Color from "color";
@@ -13,7 +13,11 @@ export type CodeEditorProps = Omit<TextareaProps, "onChange"> & {
   language?: string;
   customLanguages?: CustomLanguage[];
   typescriptDefinition?: string;
+  /** Gives access to the Monaco instance, e.g. to insert text at the cursor */
+  onEditorMount?: (editor: CodeEditorInstance) => void;
 };
+
+export type CodeEditorInstance = Parameters<OnMount>[0];
 
 export function CodeEditor({
   defaultValue,
@@ -22,6 +26,7 @@ export function CodeEditor({
   customLanguages = [],
   typescriptDefinition,
   className,
+  onEditorMount,
   ...props
 }: CodeEditorProps) {
   // const theme = useTheme();
@@ -148,9 +153,7 @@ export function CodeEditor({
                 label: `${fn.label}()`,
                 detail: "",
                 kind: monaco.languages.CompletionItemKind.Function,
-                insertText: `${fn.label}(${(fn.parameters || [])
-                  .map(({ name }, i) => "$" + `{${i + 1}:${name}}`)
-                  .join(", ")})`,
+                insertText: functionSnippet(fn),
                 insertTextRules:
                   monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                 ...(fn.description && {
@@ -256,6 +259,7 @@ export function CodeEditor({
         }}
         onMount={(editor) => {
           editorRef.current = editor;
+          onEditorMount?.(editor);
         }}
       />
     </div>
