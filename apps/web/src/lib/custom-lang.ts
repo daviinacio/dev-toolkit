@@ -59,7 +59,19 @@ export type CustomLanguage = {
   literals?: Array<CustomLanguageLiteral>;
   operators?: Array<CustomLanguageOperator>;
   lineComment?: string;
+  /** Text colors for the language, like its original IDE, over the app's editor theme */
+  tokenColors?: CustomLanguageTokenColors;
 };
+
+/**
+ * Colors of the editor tokens: function, keyword, constant (True/False), string,
+ * number, date, comment, identifier, operator and delimiter. Hex without "#".
+ */
+export type CustomLanguageTokenColors = Array<{
+  token: string;
+  foreground?: string;
+  fontStyle?: string;
+}>;
 
 export type CustomLanguageLiteral = {
   /** Must be anchored with `^`: it is tested against the rest of the expression */

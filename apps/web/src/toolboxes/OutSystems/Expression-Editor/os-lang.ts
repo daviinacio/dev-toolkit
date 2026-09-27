@@ -2,6 +2,7 @@ import {
   CustomLanguage,
   CustomLanguageFunction,
   CustomLanguageLiteral,
+  CustomLanguageTokenColors,
   CustomLanguageOperator,
 } from "@/lib/custom-lang";
 import { dateTimeToString, NewLine } from "common/lib/utils";
@@ -2823,6 +2824,25 @@ const MiscellaneousFunctions: OutSystemsLangFunction[] = [];
 
 const RolesFunctions: OutSystemsLangFunction[] = [];
 
+/**
+ * Service Studio's text colors (sampled from its light editor: functions #0000ff,
+ * Text #800000, the rest black), lightened with the same hue to be readable on the
+ * app's dark editor. Keywords, True/False and comments follow the same palette.
+ */
+const OutSystemsTokenColors: CustomLanguageTokenColors = [
+  { token: "function", foreground: "9494ff" },
+  { token: "keyword", foreground: "9494ff" },
+  { token: "constant", foreground: "9494ff" },
+  { token: "string", foreground: "e08585" },
+  { token: "comment", foreground: "00a300" },
+  // Black in Service Studio, so the editor's regular text color here
+  { token: "identifier", foreground: "e8eaed" },
+  { token: "number", foreground: "e8eaed" },
+  { token: "date", foreground: "e8eaed" },
+  { token: "operator", foreground: "e8eaed" },
+  { token: "delimiter", foreground: "e8eaed" },
+];
+
 export const OutSystemsLang: CustomLanguage & {
   functions: Array<OutSystemsLangFunction>;
 } = {
@@ -2862,4 +2882,5 @@ export const OutSystemsLang: CustomLanguage & {
     },
   ],
   lineComment: "//",
+  tokenColors: OutSystemsTokenColors,
 };

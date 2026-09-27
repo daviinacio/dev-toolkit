@@ -19,6 +19,26 @@ export type CodeEditorProps = Omit<TextareaProps, "onChange"> & {
 
 export type CodeEditorInstance = Parameters<OnMount>[0];
 
+// Colors from the design (modules/design-figma)
+const editorDarkColors = {
+  "editor.background": "#0f1012",
+  "editor.lineHighlightBackground": "#161719",
+  "editor.lineHighlightBorder": "#161719",
+  "editorLineNumber.foreground": "#5f6368",
+  "editorLineNumber.activeForeground": "#9aa0a6",
+  "editorCursor.foreground": "#b8ff57",
+  "editor.selectionBackground": "#b8ff5733",
+  "editorWidget.background": "#161719",
+  "editorWidget.border": "#2a2c30",
+  "editorSuggestWidget.background": "#161719",
+  "editorSuggestWidget.border": "#2a2c30",
+  "editorSuggestWidget.selectedBackground": "#1e2022",
+  "editorHoverWidget.background": "#161719",
+  "editorHoverWidget.border": "#2a2c30",
+  // muted-foreground: 6.8:1 on the suggestions background (#5f6368 was only 3:1)
+  "symbolIcon.functionForeground": "#9aa0a6",
+};
+
 export function CodeEditor({
   defaultValue,
   value,
@@ -82,23 +102,7 @@ export function CodeEditor({
       base: "vs-dark",
       inherit: true,
       rules: [],
-      // Colors from the design (modules/design-figma)
-      colors: {
-        "editor.background": "#0f1012",
-        "editor.lineHighlightBackground": "#161719",
-        "editor.lineHighlightBorder": "#161719",
-        "editorLineNumber.foreground": "#5f6368",
-        "editorLineNumber.activeForeground": "#9aa0a6",
-        "editorCursor.foreground": "#b8ff57",
-        "editor.selectionBackground": "#b8ff5733",
-        "editorWidget.background": "#161719",
-        "editorWidget.border": "#2a2c30",
-        "editorSuggestWidget.background": "#161719",
-        "editorSuggestWidget.border": "#2a2c30",
-        "editorSuggestWidget.selectedBackground": "#1e2022",
-        "editorHoverWidget.background": "#161719",
-        "editorHoverWidget.border": "#2a2c30",
-      },
+      colors: editorDarkColors,
     });
 
     monaco.editor.defineTheme("editor-light", {
@@ -122,43 +126,49 @@ export function CodeEditor({
         monaco.languages.register({ id: lang.id });
 
         // 2. Define tokens (very basic sample here)
+        // Token names are the ones CustomLanguageTokenColors colors
+        const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+        const keywords = (lang.keywords || []).map((it) => escape(it.label));
         monaco.languages.setMonarchTokensProvider(lang.id, {
+          // Like the transpiler, names are case-insensitive: if() is If()
+          ignoreCase: true,
           tokenizer: {
             root: [
-              // "\\bIf\\b|\\bThen\\b|\\bElse\\b"
-              [
-                new RegExp(
-                  [...(lang.functions || []), ...(lang.keywords || [])]
-                    .map((it) => `\\b${it.label}\\b`)
-                    .join("|")
-                ),
-                "keyword",
-              ],
-              [/\bTrue\b|\bFalse\b/, "constant"],
-              [/#[^#\r\n]*#/, "number"], // e.g. #2015-05-21#
-              [/\b\w+(?=\()/, "function"], // e.g. IsNull()
-              [/[a-zA-Z_]\w*/, "identifier"],
-              [/\d+/, "number"],
-              [/".*?"/, "string"],
-              // Operators
-              [/<>|<=|>=|=|<|>|\+|\-|\*|\/|%/, "operator"],
-              // Parentheses
-              [/[()]/, "@brackets"],
-              // Comments (if needed)
-              [/\/\/.*$/, "comment"],
+              [new RegExp(`${escape(lang.lineComment || "//")}.*$`), "comment"],
+              [/"([^"]|"")*"/, "string"], // "" is a quote inside the Text
+              [/"([^"]|"")*$/, "string"], // still being typed
+              [/#[^#\r\n]*#/, "date"], // e.g. #2015-05-21#
+              [/\b(True|False)\b/, "constant"],
+              ...(keywords.length
+                ? [[new RegExp(`\\b(${keywords.join("|")})\\b`), "keyword"] as [RegExp, string]]
+                : []),
+              [/[a-zA-Z_][\w.]*(?=\s*\()/, "function"], // e.g. IsNull()
+              [/[a-zA-Z_][\w.]*/, "identifier"], // e.g. GetUsers.List.Current.Name
+              [/\d+(\.\d+)?/, "number"],
+              [/<>|<=|>=|=|<|>|\+|-|\*|\//, "operator"],
+              [/[(),]/, "delimiter"],
             ],
           },
         });
 
+        // The app's dark editor with the language's own text colors
+        if (lang.tokenColors)
+          monaco.editor.defineTheme(`${lang.id}-theme`, {
+            base: "vs-dark",
+            inherit: true,
+            rules: lang.tokenColors,
+            colors: editorDarkColors,
+          });
+
         // 3. Optional: set basic config (e.g. comments)
-        monaco.languages.setLanguageConfiguration("outsystems", {
+        monaco.languages.setLanguageConfiguration(lang.id, {
           comments: {
             lineComment: lang.lineComment || "//",
           },
         });
 
         // 4. Add autocomplete
-        monaco.languages.registerCompletionItemProvider("outsystems", {
+        monaco.languages.registerCompletionItemProvider(lang.id, {
           provideCompletionItems: () => {
             const suggestions = [
               ...(lang.functions || []).map((fn) => ({
@@ -248,7 +258,11 @@ export function CodeEditor({
         value={typeof value == "string" ? value : ""}
         defaultValue={typeof defaultValue == "string" ? defaultValue : ""}
         language={language}
-        theme={/*theme.isDarkMode*/ true ? "editor-dark" : "editor-light"}
+        theme={
+          customLanguages.find((it) => it.id === language)?.tokenColors
+            ? `${language}-theme`
+            : "editor-dark"
+        }
         className={cn(
           //"ring ring-primary rounded-sm overflow-hidden",
           "transition-colors",
