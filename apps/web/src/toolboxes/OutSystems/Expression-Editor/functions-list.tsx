@@ -14,7 +14,7 @@ export type FunctionListProps = {
 
 export function FunctionList({ onSelect }: FunctionListProps) {
   return (
-    <div className="flex h-full w-64 flex-col gap-1.5">
+    <div className="flex h-auto w-64 flex-col gap-1.5">
       <h3 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
         Built-in functions
       </h3>

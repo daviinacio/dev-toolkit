@@ -58,8 +58,64 @@ export default function OutSystemsExpression_ToolPage() {
   );
 
   return (
+    <div className="flex gap-4">
+      <div className="flex flex-col gap-4 flex-1">
+        <div className="flex-1">
+          <div className="flex h-40 min-w-0 flex-col gap-1.5">
+            <label className={sectionLabel}>Expression</label>
+            <div className="min-h-0 flex-1">
+              <CodeEditor
+                language="outsystems"
+                customLanguages={[OutSystemsLang]}
+                value={outsystemsCode}
+                onChange={setOutsystemsCode}
+                onEditorMount={(editor) => (editorRef.current = editor)}
+              />
+            </div>
+          </div>
+        </div>
+        <VariablesPanel
+          variables={evaluation.variables}
+          values={variableValues}
+          onChange={(name, value) =>
+            setVariableValues((values) => ({ ...values, [name.toLowerCase()]: value }))
+          }
+        />
+        <div className="flex flex-col gap-1.5">
+          <label className={sectionLabel}>Result</label>
+          <pre className="min-h-28 whitespace-pre-wrap rounded-lg border bg-background px-3 py-2 font-mono text-sm">
+            {evaluation.error ? (
+              <span className="text-destructive">✕ {evaluation.error}</span>
+            ) : evaluation.text !== undefined ? (
+              <span className="text-primary">{evaluation.text}</span>
+            ) : (
+              <span className="text-faint">result appears here...</span>
+            )}
+          </pre>
+        </div>
+
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className={cn(sectionLabel, "py-2")}>
+              Extra for nerds · transpiled JavaScript
+            </AccordionTrigger>
+            <AccordionContent>
+              <pre className="min-h-28 overflow-x-auto rounded-lg border bg-background px-3 py-2 font-mono text-xs text-muted-foreground">
+                {evaluation.javascript || (
+                  <span className="text-faint">the transpiled code appears here...</span>
+                )}
+              </pre>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+      <FunctionList onSelect={insertFunction} />
+    </div>
+  )
+
+  return (
     <div className="flex flex-col gap-4">
-      <div className="flex h-96 gap-3">
+      <div className="flex h-80 gap-3">
         <div className="flex h-full min-w-0 flex-1 flex-col gap-1.5">
           <label className={sectionLabel}>Expression</label>
           <div className="min-h-0 flex-1">
@@ -83,33 +139,7 @@ export default function OutSystemsExpression_ToolPage() {
         }
       />
 
-      <div className="flex flex-col gap-1.5">
-        <label className={sectionLabel}>Result</label>
-        <pre className="min-h-28 whitespace-pre-wrap rounded-lg border bg-background px-3 py-2 font-mono text-sm">
-          {evaluation.error ? (
-            <span className="text-destructive">✕ {evaluation.error}</span>
-          ) : evaluation.text !== undefined ? (
-            <span className="text-primary">{evaluation.text}</span>
-          ) : (
-            <span className="text-faint">result appears here...</span>
-          )}
-        </pre>
-      </div>
 
-      <Accordion type="single" collapsible>
-        <AccordionItem value="item-1">
-          <AccordionTrigger className={cn(sectionLabel, "py-2")}>
-            Extra for nerds · transpiled JavaScript
-          </AccordionTrigger>
-          <AccordionContent>
-            <pre className="min-h-28 overflow-x-auto rounded-lg border bg-background px-3 py-2 font-mono text-xs text-muted-foreground">
-              {evaluation.javascript || (
-                <span className="text-faint">the transpiled code appears here...</span>
-              )}
-            </pre>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
     </div>
   );
 }
