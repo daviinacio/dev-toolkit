@@ -5,6 +5,7 @@ import { Command, CommanderError } from "commander";
 import { FileType } from "./actions/action-compress.js";
 import * as actions from "./actions/index.js";
 import { Resolution } from "./lib/constants.js";
+import { LotteryGameIds } from "../../../modules/common/lib/lottery.js";
 import { EnumOption, NumericOption, PathArgument } from "./lib/validation.js";
 
 /** Setup */
@@ -82,6 +83,32 @@ person
   .option("-c, --count <number>", "How many records", NumericOption, 1)
   .option("-p, --pretty", "Pretty-print JSON", false)
   .action(actions.person.generate);
+
+const lottery = program
+  .command("lottery")
+  .description("Generate random bets for the Brazilian lotteries.");
+
+lottery
+  .command("generate")
+  .description("Generate one or more random bets.")
+  .option(
+    "-g, --game <string>",
+    "Lottery game",
+    EnumOption(LotteryGameIds),
+    "mega-sena"
+  )
+  .option("-c, --count <number>", "How many bets to generate", NumericOption, 1)
+  .option(
+    "-n, --numbers <number>",
+    "Numbers per bet (defaults to the game's minimum)",
+    NumericOption
+  )
+  .action(actions.lottery.generate);
+
+lottery
+  .command("games")
+  .description("List the supported games and their rules.")
+  .action(actions.lottery.games);
 
 program.parseAsync(process.argv).catch((err) => {
   if (err instanceof CommanderError) {

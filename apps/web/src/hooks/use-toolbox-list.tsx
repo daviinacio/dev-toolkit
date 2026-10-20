@@ -2,6 +2,7 @@ import OutSystemsExpression_ToolPage from "@/toolboxes/OutSystems/Expression-Edi
 import BrazilianCpf_ToolPage from "@/toolboxes/Brazilian/CPF";
 import BrazilianCnpj_ToolPage from "@/toolboxes/Brazilian/CNPJ";
 import BrazilianPerson_ToolPage from "@/toolboxes/Brazilian/Person";
+import BrazilianLottery_ToolPage from "@/toolboxes/Brazilian/Lottery";
 import { useLocation } from "react-router-dom";
 
 export type Tool = {
@@ -63,6 +64,13 @@ export function useToolboxList() {
           path: "person",
           element: <BrazilianPerson_ToolPage />,
           tags: ["person", "fake data", "json"],
+        },
+        {
+          name: "Lottery",
+          description: "Generate random bets for Mega-Sena, Lotofácil and more",
+          path: "lottery",
+          element: <BrazilianLottery_ToolPage />,
+          tags: ["lottery", "mega-sena", "random"],
         },
       ],
     },
